@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MetreKgCevirme" Enabled="true" Priority="0" ScriptName="MetreKgCevirme">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="OrderReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>fiy=0m;
+function OnColumnChanged(sender, ev)
+{
+	if( BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null )
+		return null;
+	
+	if(BaseObject.Name!="OrderReceiptEN" || ev.Row.Table.TableName != "IM_OrderReceiptItem" || ev.Row.IsNull("ReceiptType") || ev.Row["ReceiptType"].ToString() != "2"
+		|| (ev.Column.ColumnName != "DyeWeight" &amp;&amp; ev.Column.ColumnName != "DyeWidth" &amp;&amp; ev.Column.ColumnName != "UD_2Birim" &amp;&amp; ev.Column.ColumnName != "Quantity2" &amp;&amp; ev.Column.ColumnName != "UnitCode"))
+         return null;
+         
+  	if(	ev.Row.IsNull("UnitCode") || ev.Row.IsNull("UD_2Birim")  || ev.Row.IsNull("Quantity2") || ev.Row.IsNull("DyeWeight") || ev.Row.IsNull("DyeWidth"))
+        return null;
+	
+	l_en=0m;
+	if(!ev.Row.IsNull("DyeWidth") &amp;&amp; Convert.ToDecimal(ev.Row["DyeWidth"])&gt;0m)
+		 l_en=Convert.ToDecimal(ev.Row["DyeWidth"]);
+		 
+	l_gram=0m;
+	if(!ev.Row.IsNull("DyeWeight") &amp;&amp; Convert.ToDecimal(ev.Row["DyeWeight"])&gt;0m)
+		 l_gram=Convert.ToDecimal(ev.Row["DyeWeight"]);
+		 
+	l_quantity=0m;
+	if(!ev.Row.IsNull("Quantity2") &amp;&amp; Convert.ToDecimal(ev.Row["Quantity2"])&gt;0m)
+		l_quantity=Convert.ToDecimal(ev.Row["Quantity2"]);
+	
+     		
+    l_mik=0m;
+    if(!ev.Row.IsNull("UnitPrice2") &amp;&amp; Convert.ToDecimal(ev.Row["UnitPrice2"])&gt;0m)
+    l_mik=Convert.ToDecimal(ev.Row["UnitPrice2"]); 		 	
+     	
+	if(ev.Row["UnitCode"].ToString() == "Mt" &amp;&amp; !string.IsNullOrWhiteSpace(ev.Row["UD_2Birim"].ToString()) &amp;&amp; ev.Row["UD_2Birim"].ToString() == "Mt" || ev.Column.ColumnName=="UnitPrice2" || ev.Column.ColumnName=="Quantity2")
+	{		          
+        kg_value=((l_en*l_gram)/100000)*l_quantity;	    	    
+	    ev.Row.SetField&lt;|decimal|&gt;("Quantity", Convert.ToDecimal(kg_value)); 
+	    
+	   	global:fiy=l_mik*l_quantity;
+	   	ev.Row.SetField&lt;|decimal|&gt;("UnitPrice",Convert.ToDecimal(global:fiy));
+	   	
+    }
+    
+    if(ev.Row["UD_2Birim"].ToString() == "Kg" &amp;&amp; ev.Column.ColumnName=="Quantity2"){
+    MessageBox.Show(ev.Row["UD_2Birim"].ToString());
+   		 ev.Row.SetField&lt;|decimal|&gt;("Quantity", Convert.ToDecimal(ev.Row["Quantity2"])); }
+	    
+}
+</ScriptText>
+</ScriptDefinition>

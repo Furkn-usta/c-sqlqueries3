@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MalAlımSarfFisineTasima" Enabled="false" Priority="0" ScriptName="MalAlımSarfFisineTasima">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>	//Generated on 15.11.2022 15:41:09
+function OnColumnChanged(sender, e)
+{
+	if(BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null  || !Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"]) == 130 )
+		return null;
+
+	if( e.Row.Table.TableName == "IM_ReceiptItem" &amp;&amp; e.Column.ColumnName == "InventoryId")
+	{ Id=e.Column.ColumnName == "RecId";
+	
+		foreach( ri in BaseObject.Data.Tables["IM_ReceiptItem"].Select("RecId is not null") )
+		{
+	        
+query="select rei.ForexUnitPrice,rei.Quantity,rei.ForexId,rei.VatRate from IM_Invoice im left join IM_Receipt re on im.RecId=re.InvoiceId left join IM_ReceiptItem rei on re.RecId=rei.InventoryReceiptId left join IM_Item i on i.RecId=rei.InventoryId where rei.ReceiptType=1 and AccessCode!=\'YARN\'  and rei.InventoryId="+ri["InventoryId"].ToString()+ " order by rei.RecId desc";
+  dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt", query);
+if(dt.Rows[0][0]!=null &amp;&amp; dt.Rows.Count&gt;0 )
+{
+
+ri.SetField&lt;|String|&gt;("Quantity",dt.Rows[0][1].ToString());
+ri.SetField&lt;|decimal|&gt;("ForexUnitPrice",Convert.ToDecimal(dt.Rows[0][0]));
+ri.SetField&lt;|String|&gt;("VatRate",dt.Rows[0][3].ToString());
+ri.SetField&lt;|String|&gt;("ForexId",dt.Rows[0][2].ToString());
+ 
+
+
+}
+}
+}
+}function OnAfterPost(sender, e)
+
+{
+	if(BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null || !Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"]) == 130 )
+		return null;
+		query2="select lower (w.WarehouseName) from IM_Receipt re left join IM_Warehouse w on re.InWarehouseId=w.RecId where re.RecId="+BaseObject.CurrentRow.Row["RecId"].ToString()+" and w.WarehouseName like \'%kimy%\'";
+  dt2 = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt2", query2);
+if(dt.Rows[0][0]!=null &amp;&amp; dt.Rows.Count&gt;0 )
+{
+
+		foreach( ri in BaseObject.Data.Tables["IM_ReceiptItem"].Select("RecId is not null") )
+		{
+	       
+query="select rei.ForexUnitPrice,rei.Quantity,rei.ForexId,rei.VatRate from IM_Invoice im left join IM_Receipt re on im.RecId=re.InvoiceId left join IM_ReceiptItem rei on re.RecId=rei.InventoryReceiptId left join IM_Item i on i.RecId=rei.InventoryId where rei.ReceiptType=1 and AccessCode!=\'YARN\'  and rei.InventoryId="+ri["InventoryId"].ToString()+ " order by rei.RecId desc";
+  dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt", query);
+if(dt.Rows[0][0]!=null &amp;&amp; dt.Rows.Count&gt;0 )
+{
+
+ri.SetField&lt;|String|&gt;("Quantity",dt.Rows[0][1].ToString());
+ri.SetField&lt;|decimal|&gt;("ForexUnitPrice",Convert.ToDecimal(dt.Rows[0][0]));
+ri.SetField&lt;|String|&gt;("VatRate",dt.Rows[0][3].ToString());
+ri.SetField&lt;|String|&gt;("ForexId",dt.Rows[0][2].ToString());
+  
+}
+}}
+
+}	
+</ScriptText>
+</ScriptDefinition>

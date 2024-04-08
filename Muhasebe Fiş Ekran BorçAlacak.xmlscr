@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="Muhasebe Fiş Ekran BorçAlacak" Enabled="true" Priority="0" ScriptName="Muhasebe Fiş Ekran BorçAlacak">
+  <Events>
+    <Event Enabled="true" ObjectName="GLAccountReceiptVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="GLAccountReceiptVM" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.08.2022 18:20:37
+function OnViewLoaded (sender , eventArg)
+{
+	foreach (rc in BaseObject.GLReceiptColumnCollection)
+ 	{
+ 		if(rc.ColumnName == "Debit" || rc.ColumnName  == "Credit" || rc.ColumnName  == "ForexAmount")
+			rc.UpdateOnPropertyChanged  = true;
+	}	
+}</ScriptText>
+</ScriptDefinition>

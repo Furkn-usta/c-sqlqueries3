@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetModelOrderBaglama" Enabled="true" Priority="0" ScriptName="MaliyetModelOrderBaglama">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 3.04.2024 16:57:53 MaliyetModelOrderBaglama
+function OnColumnChanged(sender, ev)
+{
+	if( BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+    || BaseObject.CurrentRow.Row.IsNull("InventoryId")
+    )
+		return null;
+
+    if(BaseObject.Name!="InitialCostEN" 
+	|| ev.Row.Table.TableName != "MA_InitialCost")	 
+         return null;	
+    if(ev.Row.IsNull("InventoryId") || ev.Column.ColumnName != "InventoryId")
+        return null;
+
+        inv_rec = ev.Row["InventoryId"].ToString();
+        //MessageBox.Show(inv_rec.ToString());
+    	sb = new StringBuilder();
+        sb.Clear();	
+        sb.AppendLine("select top 1 isnull(RecId,0) [order_rec] from MA_WorkOrder with (nolock) where InventoryId=\'"+inv_rec.ToString()+"\' order by InsertedAt desc");
+        //MessageBox.Show(sb.ToString());
+        dt_sb = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb",sb.ToString());
+        if(dt_sb != null &amp;&amp; dt_sb.Rows.Count &gt; 0)
+			{
+                ev.Row.SetField&lt;|int|&gt;("WorkOrderId",Convert.ToInt32(dt_sb.Rows[0]["order_rec"]));
+            }
+        
+}
+
+
+</ScriptText>
+</ScriptDefinition>

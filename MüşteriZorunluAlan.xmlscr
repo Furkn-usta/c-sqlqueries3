@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MüşteriZorunluAlan" Enabled="true" Priority="0" ScriptName="MüşteriZorunluAlan">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="FurkanUsta" EntryDate="2023-03-17T00:00:00">
+      <Change>İrsaliyelerde depo Idleri 12 ve 15 seçilirse satırdaki UD_Cari özel alanının boş bırakılırsa kayıt yapılmasını engeller.</Change>
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 17.03.2023 13:40:51
+/*
+İrsaliyelerde depo Idleri 12 ve 15 seçilirse satırdaki UD_Cari özel alanının boş bırakılırsa kayıt yapılmasını engeller.
+*/
+function OnBeforePost(sender, ev)
+{
+	if(BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null
+    /*|| Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"]) !=1*/
+    || BaseObject.CurrentRow.Row.IsNull("InWarehouseId")
+    || (Convert.ToInt32(BaseObject.CurrentRow.Row["InWarehouseId"])!= 12 &amp;&amp; Convert.ToInt32(BaseObject.CurrentRow.Row["InWarehouseId"]) != 15 ))
+		return null;
+
+	foreach(dr in BaseObject.Data.Tables["IM_ReceiptItem"].Select(""))
+	{
+		if(dr.IsNull("UD_Cari") || dr["UD_Cari"].ToString().Trim()  == String.Empty)
+		{
+			BaseObject.ShowMessage("Kumaş Depo veya ModelHane Depo Seçili ise Müşteri alanı boş olamaz! {scr:MüşteriZorunluAlan}");
+			ev.Cancel = true;
+			return null;
+		}
+	}
+}
+</ScriptText>
+</ScriptDefinition>

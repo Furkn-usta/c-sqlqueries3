@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumaşveAksesuarAdıKüçükHarfEngelleme" Enabled="true" Priority="0" ScriptName="KumaşveAksesuarAdıKüçükHarfEngelleme">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 15.09.2023 14:59:19
+	//KumaşveAksesuarAdıKüçükHarfEngelleme
+	/*
+	Kumaş ve Aksesuar kartlarında adı kısımında küçük harf ve türkçe karakter girilmesini engeller.
+	*/
+	
+function OnBeforePost(sender, ev)
+{ 
+
+	if(BaseObject == null 	
+	|| BaseObject.CurrentRow == null 	
+	|| BaseObject.CurrentRow.Row == null)
+		return null;
+
+	if(BaseObject.CurrentRow.Row["AccessCode"].ToString()=="YARN")		
+     		return null;
+
+if(BaseObject.CurrentRow.Row["AccessCode"].ToString()=="TRIM" || BaseObject.CurrentRow.Row["AccessCode"].ToString()=="FABRIC")
+{
+name_=BaseObject.CurrentRow.Row["InventoryName"].ToString().Trim();
+//MessageBox.Show(name_.ToString());
+counter=0;
+sayac=0;
+
+seslii="ı";
+seslig="ğ";
+sesliu="ü";
+seslis="ş";
+seslio="ö";
+seslic="ç";
+
+sesli_i="İ";
+sesli_g="Ğ";
+sesli_u="Ü";
+sesli_s="Ş";
+sesli_o="Ö";
+sesli_c="Ç";
+
+lock=false;
+	for (counter = 0; counter &lt; name_.Length; counter++)
+			{
+     
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslii)) sayac += 1;
+      
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslig)) sayac += 1;
+      
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(sesliu)) sayac += 1;
+       
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslis)) sayac += 1;    
+       
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslio)) sayac += 1;
+             
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslic)) sayac += 1;
+      
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(sesli_i)) sayac += 1;
+      
+	  if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(sesli_g)) sayac += 1;
+
+	  if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(sesli_u)) sayac += 1;
+
+	  if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(sesli_s)) sayac += 1;
+
+	  if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(sesli_o)) sayac += 1;
+
+   	  if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(sesli_c)) sayac += 1;    
+        
+           for(i=97;i&lt;=122;i++) // küçük harf
+                {
+                dizi=[i];
+                if(Convert.ToChar(i) == Convert.ToChar(name_.Substring(counter, 1)))
+                sayac += 1;
+                }
+        
+        
+			}
+
+				if(sayac&gt;0) 
+   				lock=true;
+					if(lock)
+					{
+					sender.ShowMessage("Aksuar veya Kumaş Kartlarında Adı Kısmında Küçük Harf ve Türkçe Karakter Kullanılamaz Dikkat..! {scr:KumaşveAksesuarAdıKüçükHarfEngelleme}");
+					ev.Cancel=true;
+					return null;  
+					}  
+
+}
+}
+</ScriptText>
+</ScriptDefinition>

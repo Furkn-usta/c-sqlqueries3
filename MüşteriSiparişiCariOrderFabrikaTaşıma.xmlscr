@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MüşteriSiparişiCariOrderFabrikaTaşıma" Enabled="true" Priority="0" ScriptName="MüşteriSiparişiCariOrderFabrikaTaşıma">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="OrderReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 22.08.2023 11:15:12
+/*
+Satış Siparişlerinde Başlıkta Seçilen Cari Satırlarda Üretim Emri Mevcut Olan Orderların Satırlarına Fabrika Kodu Olarak Taşınmaktadır.
+*/
+function OnAfterSucceededPost(sender,ev)
+{
+    if(BaseObject == null 	
+	|| BaseObject.CurrentRow == null 	
+	|| BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("ReceiptType") 
+    || BaseObject.CurrentRow.Row.IsNull("CurrentAccountId") 
+	|| Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"])!=2)
+        return null;
+    cai = Convert.ToInt32(BaseObject.CurrentRow.Row["CurrentAccountId"]);
+
+    foreach(ori in BaseObject.Data.Tables["IM_OrderReceiptItem"].Select("WorkOrderReceiptItemId is not null") )
+        {
+            wori = Convert.ToInt32(ori["WorkOrderReceiptItemId"]);
+		   
+		    query_SQL =  ("select DISTINCT isnull(WOI.WorkOrderId,0) [wo] from MA_WorkOrder WO with (nolock)");
+			query_SQL += (" left join MA_WorkOrderItem WOI with (nolock) on WOI.WorkOrderId=WO.RecId");
+			query_SQL += (" where WO.RecId=(select isnull(WOII.WorkOrderId,0)  from MA_WorkOrderItem WOII with (nolock) ");
+			query_SQL += (" where WOII.RecId=\'"+wori.ToString()+"\')");
+			query_SQL += (" and WOI.ParentItemId is null and WOI.WorkOrderSubType=2");
+			query_SQL += (" group by WOI.WorkOrderId");
+           // MessageBox.Show(query_SQL.ToString());
+            dt_query_SQL= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_query_SQL",query_SQL);
+           
+                
+                if(dt_query_SQL == null || dt_query_SQL.Rows.Count&lt;=0)
+                    return null;
+             wo_ = dt_query_SQL.Rows[0]["wo"].ToString();
+            
+            up_query = "update MA_WorkOrderItem set ManufacturingFactoryId =\'"+cai.ToString()+"\' where WorkOrderId=\'"+wo_.ToString()+"\' and ParentItemId is null and WorkOrderSubType=2";
+            
+           // MessageBox.Show(up_query.ToString());
+            UtilityFunctions.SqlCustomNonQuery(BaseObject.Connection, BaseObject.Transaction, up_query);
+       
+        }
+}</ScriptText>
+</ScriptDefinition>

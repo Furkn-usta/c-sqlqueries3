@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MalzemeKartiZorunluAlan" Enabled="true" Priority="0" ScriptName="MalzemeKartiZorunluAlan">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 12.04.2022 15:00:47
+ 
+function OnBeforePost(sender, ev)
+{
+	if(BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null || !BaseObject.CurrentRow.Row.IsNull("ProcessId"))
+ 		return null;
+ 		
+if(BaseObject.ActiveSession.Company.RecId == 3 &amp;&amp; !BaseObject.CurrentRow.Row.IsNull("AccessCode") &amp;&amp; BaseObject.CurrentRow.Row["AccessCode"].ToString() == "TRIM")
+{
+
+	ev.Cancel = true;
+	BaseObject.ShowMessage("Prosses kodu alani zorunludur! {scr:MalzemeKartiZorunluAlan}");
+	return null;
+}
+
+}</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetModelEtütBilgileriniTasima" Enabled="true" Priority="0" ScriptName="MaliyetModelEtütBilgileriniTasima">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InitialCostVM" />
+  </Events>
+  <Histories />
+  <ScriptText>function OnViewLoaded(sender, e)
+{
+    if(BaseObject != null)
+    {
+          BaseObject.FindControl("CodebtnRun").Click += ButtonClick; //butona name verilen isim CodebtnRun
+    }
+}
+
+function ButtonClick(sender, e)
+{       
+
+
+
+	if(BaseObject.ActiveEntity == null 
+	|| BaseObject.ActiveEntity.CurrentRow == null 
+	|| BaseObject.ActiveEntity.CurrentRow.Row == null 
+	|| BaseObject.ActiveEntity.CurrentRow.Row["UD_Guncelleme"])
+     {  MessageBox.Show("İşçilik Maliyeti Günceldir"); return null;} 
+     
+
+
+ 		foreach(dr in BaseObject.ActiveEntity.Data.Tables["MA_InitialCostItem"].Select("CostItemType=2 and UD_InUse=1") )
+		{MessageBox.Show("İşçilik Maliyeti Günceldir");
+	
+		return null;
+		}
+ 			forex=0m;
+		 if(!BaseObject.ActiveEntity.CurrentRow.Row.IsNull("Forex2Rate"))
+			forex=Convert.ToDecimal(BaseObject.ActiveEntity.CurrentRow.Row["Forex2Rate"]);
+ 				katsayi=0m;
+   query="select isnull(M.UD_KatSayi,0)from IM_Item A with (nolock) left join IM_Mark M with (nolock) on M.RecId=A.MarkId  where A.CompanyId=4 and A.RecId="+  BaseObject.ActiveEntity.CurrentRow.Row["InventoryId"].ToString();
+   dt = UtilityFunctions.GetDataTableList(BaseObject.ActiveEntity.Provider, BaseObject.ActiveEntity.Connection, BaseObject.ActiveEntity.Transaction, "dt", query);
+ 
+ 		if(dt!=null &amp;&amp; dt.Rows.Count&gt;0 )
+ 		{
+ 			katsayi=dt.Rows[0][0].ToString();
+ 	
+ 		}
+		studyquery="select isnull(IW.StandartTime1,0),isnull(IW.ProcessId,0) from IM_Item I with (nolock) left join IM_ItemWorkStudy IW with (nolock) on IW.InventoryId=I.RecId where  CompanyId=4 and  I.RecId ="+BaseObject.ActiveEntity.CurrentRow.Row["InventoryId"].ToString();
+   		studyquerydt = UtilityFunctions.GetDataTableList(BaseObject.ActiveEntity.Provider, BaseObject.ActiveEntity.Connection, BaseObject.ActiveEntity.Transaction, "studyquerydt", studyquery);
+   		if(studyquerydt!=null &amp;&amp; studyquerydt.Rows.Count&gt;0 )
+ 		{ for(i=0;i&lt;Convert.ToInt32(studyquerydt.Rows.Count);i++)
+ 			{
+ 			standartTime=studyquerydt.Rows[i][0].ToString();
+ 			ProcessId=studyquerydt.Rows[i][1].ToString();
+ 			Process="select isnull(ProcessCode,\'\') from MA_Process where CompanyId=4 and RecId="+ProcessId;
+ 			Processquerydt = UtilityFunctions.GetDataTableList(BaseObject.ActiveEntity.Provider, BaseObject.ActiveEntity.Connection, BaseObject.ActiveEntity.Transaction, "Processquerydt", Process);
+				if(Processquerydt!=null &amp;&amp; studyquerydt.Rows.Count&gt;0 )
+ 					{
+ 						CardId="select isnull(RecId,\'\') from MA_InitialCostCard where CompanyId=4  and Code="+Processquerydt.Rows[0][0].ToString();
+ 						CardIdquerydt = UtilityFunctions.GetDataTableList(BaseObject.ActiveEntity.Provider, BaseObject.ActiveEntity.Connection, BaseObject.ActiveEntity.Transaction, "CardIdquerydt", CardId);
+ 						if(CardIdquerydt!=null &amp;&amp; CardIdquerydt.Rows.Count&gt;0 )
+ 							{
+								quantity=Convert.ToDecimal(standartTime)*Convert.ToDecimal(katsayi);
+					 			UnitePrice=Convert.ToDecimal(standartTime)*Convert.ToDecimal(katsayi)*Convert.ToDecimal(forex);
+								quantity=quantity.ToString();
+								quantity=quantity.Replace(",",".");
+								UnitePrice=UnitePrice.ToString().Replace(",",".");
+								insertQuery="insert into MA_InitialCostItem (InitialCostId,InitialCostCardId,CostItemType,ForexId,ForexRate,UnitPrice,ForexUnitPrice,Quantity,InsertedBy,UD_InUse)values("+Convert.ToInt64(BaseObject.ActiveEntity.CurrentRow.Row["RecId"])+","+CardIdquerydt.Rows[0][0]+",2,2,\'"+forex.ToString().Replace(",",".")+"\',\'"+UnitePrice.ToString().Replace(",",".")+"\',\'"+quantity+"\',1,"+Convert.ToInt32(BaseObject.ActiveSession.User.RecId)+",1)";
+			
+								 dt_insert_row_target_ = UtilityFunctions.GetDataTableList(BaseObject.ActiveEntity.Provider, BaseObject.ActiveEntity.Connection, BaseObject.ActiveEntity.Transaction, "dt_insert_row_target_",insertQuery);
+							}
+							else{
+								MessageBox.Show("Operasyon Bulunamadı İşçilik Maliyeti Güncellenemedi");
+							}
+				
+					}
+ 			}
+ 		}
+   		BaseObject.ActiveEntity.CurrentRow.Row.SetField&lt;|int|&gt;("UD_Guncelleme",1);
+ 		MessageBox.Show("İşçilik Maliyeti Güncellenmiştir.");
+        
+ }
+</ScriptText>
+</ScriptDefinition>

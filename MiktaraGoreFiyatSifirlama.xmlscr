@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MiktaraGoreFiyatSifirlama" Enabled="false" Priority="0" ScriptName="MiktaraGoreFiyatSifirlama">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="OrderReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 13.03.2024 15:44:22
+//MiktaraGoreFiyatSifirlama
+function OnBeforePost(sender, ev)
+{
+	if(BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("ReceiptType")
+	|| BaseObject.CurrentRow.Row.IsNull("CurrentAccountId")
+	|| Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"]) != 1
+	)
+		return null;
+
+	if(BaseObject.ActiveSession.Company.RecId != 14)
+		return null;
+					cari_rec_ = BaseObject.CurrentRow.Row["CurrentAccountId"].ToString();
+		      		sb = new StringBuilder();
+                    sb.Clear();
+                    sb.AppendLine(" select top 1 isnull(F.CurrentAccountCode,\'\') [cur_code] from FI_Account F with (nolock) ");
+                    sb.AppendLine(" where F.RecId=\'"+cari_rec_.ToString()+"\'");
+                  //  MessageBox.Show(sb.ToString());
+                    dt_sb = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb",sb.ToString());
+                        
+                    if(dt_sb != null &amp;&amp; dt_sb.Rows.Count &gt; 0 &amp;&amp; dt_sb.Rows[0]["cur_code"].ToString().Trim() == "320 01 3 R002")
+                        {
+									foreach(ori in BaseObject.Data.Tables["IM_OrderReceiptItem"].Select("Quantity is not null and Quantity &lt;= 5"))
+										{	
+											ori.SetField&lt;|decimal|&gt;("UnitPrice",0m);
+										}
+                        }
+
+}		
+
+
+//miktar 5 ve altı ise fiyat 0 olsun</ScriptText>
+</ScriptDefinition>

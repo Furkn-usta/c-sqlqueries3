@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetSatirEURFiyatHesaplama" Enabled="true" Priority="0" ScriptName="MaliyetSatirEURFiyatHesaplama">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 27.03.2024 16:31:03 MaliyetSatirEURFiyatHesaplama
+function OnBeforePost(sender,ev)
+{
+    if(BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null
+    || BaseObject.CurrentRow.Row.IsNull("ForexId"))
+        return null;
+        
+   		eur_id = BaseObject.CurrentRow.Row["ForexId"].ToString();
+   		
+		if(eur_id.ToString().Trim() == "2")
+		{
+			if(!BaseObject.CurrentRow.Row.IsNull("ForexRate"))
+				eur_kur = Convert.ToDecimal(BaseObject.CurrentRow.Row["ForexRate"]);
+			else
+				eur_kur = 1m;
+			
+	     	foreach(dr in BaseObject.Data.Tables["MA_InitialCostItem"].Select("UnitPrice is not null and  UnitPrice &gt;0"))
+			{	
+				satir_fiyat = Convert.ToDecimal(dr["UnitPrice"]);
+				dr.SetField&lt;|decimal|&gt;("UD_VerDvz",satir_fiyat/eur_kur);
+			}
+		}
+}</ScriptText>
+</ScriptDefinition>

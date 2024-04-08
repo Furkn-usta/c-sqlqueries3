@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MamülSezonSiparişeTaşıma" Enabled="true" Priority="0" ScriptName="MamülSezonSiparişeTaşıma">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="OrderReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 25.08.2023 10:41:05 MamülSezonSiparişeTaşıma
+function OnBeforePost(sender,ev)
+{
+    if(BaseObject == null 	
+	|| BaseObject.CurrentRow == null 	
+	|| BaseObject.CurrentRow.Row == null)
+        return null;
+    if(!BaseObject.CurrentRow.Row.IsNull("ReceiptType") &amp;&amp; Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"])==2)
+        {
+
+            foreach(ori in BaseObject.Data.Tables["IM_OrderReceiptItem"].Select("InventoryId is not null and ItemOrderNo=1") )
+            {
+            
+                query = "select top 1 isnull(I.SeasonCode,\'\') [sc] from IM_Item I with (nolock) where I.InventoryType=6  and I.RecId="+ori["InventoryId"].ToString();
+                r = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction,"r",query); 
+                //MessageBox.Show(query);
+                    if(r == null || r.Rows.Count &lt;=0)
+                        return null;
+                        
+                sc_ = r.Rows[0]["sc"].ToString();
+                BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("SpecialCode",sc_.ToString());
+                    
+             }
+        }
+}
+	</ScriptText>
+</ScriptDefinition>

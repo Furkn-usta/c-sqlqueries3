@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MamulKartıUreticiUrunKoduTasima" Enabled="true" Priority="0" ScriptName="MamulKartıUreticiUrunKoduTasima">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.02.2024 20:06:14 MamulKartıUreticiUrunKoduTasima
+
+function OnBeforePost(sender,ev)
+{
+	if(BaseObject == null 
+    || !BaseObject.IsNewRecord 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("StyleCardId")
+	)
+	return null;
+	
+	 sb = new StringBuilder();
+                sb.Clear();
+                sb.AppendLine("select isnull(INV.ProducerInventoryCode,\'\') [pro_ic] from IM_Item INV with (nolock) where INV.RecId=\'"+BaseObject.CurrentRow.Row["StyleCardId"].ToString()+"\'");
+	  		//	MessageBox.Show(sb.ToString());
+	  dt_sb = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb",sb.ToString());
+                	if(dt_sb==null || dt_sb.Rows.Count&lt;0)
+                        return null;
+                        
+                        BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("ProducerInventoryCode",dt_sb.Rows[0]["pro_ic"].ToString());
+}
+
+</ScriptText>
+</ScriptDefinition>

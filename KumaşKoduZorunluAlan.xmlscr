@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumaşKoduZorunluAlan" Enabled="true" Priority="0" ScriptName="KumaşKoduZorunluAlan">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.10.2023 14:28:19
+
+function OnBeforePost(sender,eventArg)
+{
+    if( BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null 
+    || BaseObject.CurrentRow.Row.IsNull("InventoryType") 
+	|| BaseObject.CurrentRow.Row.IsNull("IsSample") 
+	|| Convert.ToInt32(BaseObject.CurrentRow.Row["IsSample"]) == 0
+    || Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"]) != 99)
+    return null;
+    
+        
+        if(BaseObject.CurrentRow.Row.IsNull("UD_KumasKod") || BaseObject.CurrentRow.Row["UD_KumasKod"].ToString() == "")
+        {
+            sender.ShowMessage("Kumaş Kodu Alanı Boş Bırakılamaz! {scr:KumaşKoduZorunluAlan}");
+            eventArg.Cancel = true;
+            return null;
+        }
+        
+
+}
+    
+</ScriptText>
+</ScriptDefinition>

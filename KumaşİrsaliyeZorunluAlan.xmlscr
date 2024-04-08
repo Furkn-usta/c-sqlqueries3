@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumaşİrsaliyeZorunluAlan" Enabled="true" Priority="0" ScriptName="KumaşİrsaliyeZorunluAlan">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 10.01.2023 17:03:51
+
+
+function OnBeforePost(sender, ev)
+
+{
+	if(BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null 
+    || BaseObject.CurrentRow.Row["AccessCode"].ToString()!="FABRIC" 
+    || BaseObject.Data == null 
+    || BaseObject.Data.Tables == null 
+   
+    || !BaseObject.Data.Tables.Contains("IM_ReceiptItem") )
+	   return null;
+	  
+	foreach(dr in BaseObject.Data.Tables["IM_ReceiptItem"].Select("InventoryId is not null"))
+	{
+		qry="select G.GroupName [gn] from IM_Item I with (nolock) ";
+		qry+=" left join IM_Group G with (nolock) on G.RecId=I.GroupId ";
+		qry+=" where I.RecId="+dr["InventoryId"].ToString();
+		dtq = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dtq",qry);
+		if(dtq==null || dtq.Rows.Count&lt;0)
+		return null;
+		
+		if(dtq.Rows[0]["gn"].ToString().Contains("Örme Kuma"))
+			{
+			if(dr.IsNull("DyeWidth") || Convert.ToDecimal(dr["DyeWidth"])  == 0m)
+				{
+				BaseObject.ShowMessage("Boya En alanı boş olamaz! {scr:ZorunluEnGramaj}");
+				ev.Cancel = true;
+				return null;
+				}
+			if(dr.IsNull("DyeWeight") || Convert.ToDecimal(dr["DyeWeight"])  == 0m)
+				{
+			BaseObject.ShowMessage("Boya Gramaj alanı boş olamaz! {scr:ZorunluEnGramaj}");
+			ev.Cancel = true;
+			return null;
+				}
+			}
+		
+			if(dtq.Rows[0]["gn"].ToString().Contains("Dokuma Kuma"))
+				{
+		
+				if(dr.IsNull("DyeWidth") || Convert.ToDecimal(dr["DyeWidth"])  == 0m)
+					{
+					BaseObject.ShowMessage("Boya En alanı boş olamaz! {scr:ZorunluEnGramaj}");
+					ev.Cancel = true;
+					return null;
+					}
+				}
+		
+	}
+	
+	
+	
+		
+	}
+</ScriptText>
+</ScriptDefinition>

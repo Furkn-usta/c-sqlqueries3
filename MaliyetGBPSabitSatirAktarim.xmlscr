@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetGBPSabitSatirAktarim" Enabled="true" Priority="0" ScriptName="MaliyetGBPSabitSatirAktarim">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 27.03.2024 16:22:55 MaliyetGBPSabitSatirAktarim
+function OnBeforePost(sender,ev)
+{
+    if(BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null )
+        return null;
+        
+   	if(!BaseObject.CurrentRow.Row.IsNull("UD_GbpKur"))
+		gbp_kur = Convert.ToDecimal(BaseObject.CurrentRow.Row["UD_GbpKur"]);
+	else
+		gbp_kur = 0m;
+		
+     	foreach(dr in BaseObject.Data.Tables["MA_InitialCostItem"].Select("ForexId = 3"))
+		{	
+		dr.SetField&lt;|decimal|&gt;("ForexRate",gbp_kur);
+		}
+}</ScriptText>
+</ScriptDefinition>

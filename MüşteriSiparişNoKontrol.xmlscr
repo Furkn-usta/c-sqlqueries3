@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MüşteriSiparişNoKontrol" Enabled="true" Priority="0" ScriptName="MüşteriSiparişNoKontrol">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="OrderReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 5.07.2023 14:06:29 OrderReceiptEN
+function OnBeforePost(sender,ev)
+{
+  if(BaseObject == null 
+      || BaseObject.CurrentRow == null 
+      || BaseObject.CurrentRow.Row == null
+      || BaseObject.CurrentRow.Row.IsNull("ReceiptType")
+    //  || Convert.ToInt16(BaseObject.CurrentRow.Row["ReceiptType"]) !=2
+     /* || BaseObject.CurrentRow.Row.IsNull("CustomerOrderNo")*/
+      )
+		return null;
+
+      str="select  isnull(ORR.CustomerOrderNo,\'\') [con] , (select string_agg(ORRR.ReceiptNo,\'-\') from IM_OrderReceipt ORRR  with (nolock) where ORRR.ReceiptType=2 and ORRR.CustomerOrderNo=\'"+BaseObject.CurrentRow.Row["CustomerOrderNo"].ToString()+"\') [fis_no] from IM_OrderReceipt ORR  with (nolock) where ORR.ReceiptType=2 and ORR.CustomerOrderNo=\'"+BaseObject.CurrentRow.Row["CustomerOrderNo"].ToString()+"\'";	    
+      dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",str);	
+		//MessageBox.Show(str);
+       if(dt==null || dt.Rows.Count&lt;=0)
+          return null;
+      
+        if(dt.Rows.Count&gt;=2)
+         {
+            BaseObject.ShowMessage(dt.Rows[0]["fis_no"].ToString()+" Müşteri Sipariş Numarası Farklı Siparişte Mevcuttur.{scr:MüşteriSiparişNoKontrol}");
+             ev.Cancel = true;
+             return null;
+        }  
+}</ScriptText>
+</ScriptDefinition>

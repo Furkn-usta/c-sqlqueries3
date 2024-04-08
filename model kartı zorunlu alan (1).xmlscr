@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="Model Kartı Zorunlu Alan" Enabled="true" Priority="0" ScriptName="Model Kartı Zorunlu Alan">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 27.12.2021 12:45:00
+function OnBeforePost(sender,eventArg)
+{
+    if(BaseObject != null &amp;&amp; BaseObject.CurrentRow != null &amp;&amp; BaseObject.CurrentRow.Row != null &amp;&amp; !BaseObject.CurrentRow.Row.IsNull("InventoryType") &amp;&amp; Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"]) == 100)
+    {
+    
+	  	
+        
+        if(BaseObject.CurrentRow.Row.IsNull("SeasonCode") || BaseObject.CurrentRow.Row["SeasonCode"].ToString() == "")
+        {
+            sender.ShowMessage("Sezon Eksik Tanımlanamaz!");
+            eventArg.Cancel = true;
+            return null;
+        }
+        
+        if(BaseObject.CurrentRow.Row.IsNull("PatternCutterId") || BaseObject.CurrentRow.Row["PatternCutterId"].ToString() == "")
+        {
+            sender.ShowMessage("Modelist Eksik Tanımlanamaz!");
+            eventArg.Cancel = true;
+            return null;
+        }
+        
+        if(BaseObject.CurrentRow.Row.IsNull("ProductionMerchandiserId") || BaseObject.CurrentRow.Row["ProductionMerchandiserId"].ToString() == "")
+        {
+            sender.ShowMessage("Üretim Sorumlusu Eksik Tanımlanama !");
+            eventArg.Cancel = true;
+            return null;
+        }
+        
+
+     }
+    
+}</ScriptText>
+</ScriptDefinition>

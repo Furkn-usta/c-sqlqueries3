@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ModelMalzemeKullanımdaKontrol" Enabled="true" Priority="0" ScriptName="ModelMalzemeKullanımdaKontrol">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="FurkanUsta" EntryDate="2023-06-20T00:00:00">
+      <Change>Model kartında reçetede kullanılan malzemelerin kullanımda tikini kontrol eder. Eğer malzemelerden herhangi birinin tiki aktif değil ise script uyarı verip kayıt etmeyecektir.</Change>
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 20.06.2023 14:22:14 
+/*
+Model kartında reçetede kullanılan malzemelerin kullanımda tikini kontrol eder. Eğer malzemelerden herhangi birinin tiki aktif değil ise script uyarı verip kayıt etmeyecektir.
+*/
+function OnBeforePost(sender,eventArg)
+{
+    if(BaseObject == null
+    || BaseObject.CurrentRow == null
+    || BaseObject.CurrentRow.Row == null
+    || !BaseObject.CurrentRow.Row.IsNull("AccessCode")
+    || BaseObject.CurrentRow.Row.IsNull("InventoryType")
+    || Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"]) != 100)
+        return null;
+
+
+    foreach (ri in BaseObject.Data.Tables["MA_RecipeItem"].Select("InventoryId is not null"))
+    {
+     	inv_ = ri["InventoryId"].ToString();     
+     	str="select isnull(I.InUse,0) [kul], isnull(I.InventoryName,\'\')  [name] from IM_Item I with (nolock) where I.RecId="+inv_;
+		dt= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",str);
+		if(dt == null || dt.Rows.Count&lt;=0)
+            return null;
+
+        if(dt.Rows[0]["kul"].ToString() == "0")
+        {
+            name_ = dt.Rows[0]["name"].ToString();
+            sender.ShowMessage(name_+ " Malzemesinin Kullanımda Tiki Aktif Değil Kontrol Ediniz. {src:ModelMalzemeKullanımdaKontrol}");
+            eventArg.Cancel=true;
+            return null;
+        }
+    }
+}</ScriptText>
+</ScriptDefinition>

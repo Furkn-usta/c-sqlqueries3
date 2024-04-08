@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ModelKodUretici" Enabled="true" Priority="0" ScriptName="ModelKodUretici">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryVM" />
+    <Event Enabled="true" EventName="BeforeCommandExecution" FunctionName="OnBeforeCommandExecution" ObjectName="InventoryVM" />
+    <Event Enabled="false" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.10.2023 09:54:24
+gLock = false;
+model_code ="-";
+function OnBeforeCommandExecution(sender, cmd)
+{
+
+	if(cmd.CommandName != "CreateStyleSampleStyleCard"
+    || BaseObject.ActiveEntity == null 
+    || BaseObject.ActiveEntity.CurrentRow == null
+    || BaseObject.ActiveEntity.CurrentRow.Row == null
+	|| BaseObject.ActiveEntity.CurrentRow.Row.IsNull("InventoryType") 
+	|| BaseObject.ActiveEntity.CurrentRow.Row.IsNull("IsSample") 
+	|| Convert.ToInt32(BaseObject.ActiveEntity.CurrentRow.Row["IsSample"]) == 0
+    || Convert.ToInt32(BaseObject.ActiveEntity.CurrentRow.Row["InventoryType"]) != 99
+	)
+		return null;
+		query = "select (select isnull(INV.InventoryCode,\'\')+\'-\'+isnull(INV.SpecialCode,\'\')+\'D\'  from IM_Item INV with (nolock) where isnull(INV.RecId,0) = isnull(I.MainStyleCardId,0)) [model_adi] ";
+		query += " ,(select isnull(INV.RecId,0) from IM_Item INV with (nolock) where isnull(INV.RecId,0) = isnull(I.MainStyleCardId,0)) [rec_] from IM_Item I with (nolock) where isnull(I.RecId,0) =\'"+BaseObject.ActiveEntity.CurrentRow.Row["RecId"].ToString()+"\'";
+	  //	MessageBox.Show(query.ToString());
+		
+		dt=UtilityFunctions.GetDataTableList(BaseObject.ActiveEntity.Provider, BaseObject.ActiveEntity.Connection, BaseObject.ActiveEntity.Transaction, "dt",query);
+         
+            
+            if(dt == null || dt.Rows.Count &lt;= 0)
+			    return null;
+			 
+        model_ic = dt.Rows[0]["model_adi"].ToString();
+        rec = dt.Rows[0]["rec_"].ToString();
+        
+         global:model_code = model_ic ;
+        
+         BaseObject.ActiveEntity.CurrentRow.Row.SetField&lt;|string|&gt;("UD_KumasCode",global:model_code.ToString());
+       //  MessageBox.Show(global:model_code.ToString());
+         global:gLock = true;
+		upd_query(rec,model_ic);
+         
+}
+
+function upd_query(upd,name_)
+{
+	query = "update IM_Item set InventoryCode =\'"+name_.ToString()+"\' where RecId = \'"+upd.ToString()+"\'";
+		dt=UtilityFunctions.GetDataTableList(BaseObject.ActiveEntity.Provider, BaseObject.ActiveEntity.Connection, BaseObject.ActiveEntity.Transaction, "dt",query);
+        if(dt == null || dt.Rows.Count &lt;= 0)
+			    return null; 
+        
+//	MessageBox.Show(query.ToString());
+}</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetGBPDovizChange" Enabled="true" Priority="0" ScriptName="MaliyetGBPDovizChange">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 25.03.2024 14:48:01 MaliyetGBPDovizChange
+
+function OnColumnChanged(sender, ev)
+{
+	if( BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null )
+		return null;
+	if(BaseObject.Name!="InitialCostEN" 
+	|| ev.Row.Table.TableName != "MA_InitialCost" )
+         return null;
+         /**/
+       if(Convert.ToInt32(ev.Row["Forex2Id"]) == 1 &amp;&amp; ev.Column.ColumnName == "Forex2Rate" 
+       &amp;&amp; !ev.Row.IsNull("UD_CheckAktarim") &amp;&amp; Convert.ToInt32(ev.Row["UD_CheckAktarim"]) == 0 )  
+	    {
+			    if(ev.Row.IsNull("Forex2Rate"))
+			    	frate_ = 0m;
+			    else
+			    	frate_ = Convert.ToDecimal(ev.Row["Forex2Rate"]);
+			    
+			    ev.Row.SetField&lt;|decimal|&gt;("UD_AktarimDoviz",Convert.ToDecimal(ev.Row["Forex2Rate"]));
+			
+	    }
+       	 
+    if(Convert.ToInt32(ev.Row["Forex2Id"]) == 3 &amp;&amp; ev.Column.ColumnName == "Forex2Id")  
+    {
+	    if(ev.Row.IsNull("UD_GbpKur"))
+	    	gbp_kur = 0m;
+	    else
+	    	gbp_kur = Convert.ToDecimal(ev.Row["UD_GbpKur"]);
+	    
+	    if(ev.Row.IsNull("Forex2Rate"))
+	    	forex2Rate = 0m;
+	    else
+	    	forex2Rate = Convert.ToDecimal(ev.Row["Forex2Rate"]);
+	 
+	    ev.Row.SetField&lt;|decimal|&gt;("UD_AktarimDoviz",forex2Rate);	
+	    ev.Row.SetField&lt;|decimal|&gt;("Forex2Rate",gbp_kur);
+    }
+   if(Convert.ToInt32(ev.Row["Forex2Id"]) == 1 &amp;&amp; ev.Column.ColumnName == "Forex2Id")  
+    {
+	    if(ev.Row.IsNull("UD_AktarimDoviz"))
+	    	aktarim = 0m;
+	    else
+	
+	    ev.Row.SetField&lt;|decimal|&gt;("Forex2Rate",aktarim);
+    }
+ 
+}
+
+function OnBeforePost(sender, ev)
+{
+	if( BaseObject == null 
+	|| BaseObject.CurrentRow == null
+	|| BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("Forex2Id")
+	)
+		return null;
+		if(Convert.ToInt32(BaseObject.CurrentRow.Row["Forex2Id"]) != 3 &amp;&amp; Convert.ToInt32(BaseObject.CurrentRow.Row["Forex2Id"]) != 1)
+			return null;
+			
+			 BaseObject.CurrentRow.Row.SetField&lt;|int|&gt;("UD_CheckAktarim",1);
+	 if(Convert.ToInt32(BaseObject.CurrentRow.Row["Forex2Id"]) == 3)  
+    {
+	    if(BaseObject.CurrentRow.Row.IsNull("UD_GbpKur"))
+	    	gbp_kur = 0m;
+	    else
+	    	gbp_kur = Convert.ToDecimal(BaseObject.CurrentRow.Row["UD_GbpKur"]);
+	    
+	    if(BaseObject.CurrentRow.Row.IsNull("UD_AktarimDoviz"))
+	    	forex2Rate = 0m;
+	    else
+	    	forex2Rate = Convert.ToDecimal(BaseObject.CurrentRow.Row["UD_AktarimDoviz"]);
+	    	
+	    /*
+	    MessageBox.Show("test1");	    
+	    MessageBox.Show("forex2Rate="+forex2Rate.ToString());	
+	    MessageBox.Show("gbp_kur="+gbp_kur.ToString());	
+	    */
+	    BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("UD_AktarimDoviz",forex2Rate);	
+	    BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("Forex2Rate",gbp_kur);
+    }
+       if(Convert.ToInt32(BaseObject.CurrentRow.Row["Forex2Id"]) == 1 )  
+    {
+	    if(BaseObject.CurrentRow.Row.IsNull("UD_AktarimDoviz"))
+	    	aktarim = 0m;
+	    else
+	    	aktarim = Convert.ToDecimal(BaseObject.CurrentRow.Row["UD_AktarimDoviz"]);
+	   /*
+	    MessageBox.Show("test2");
+	    MessageBox.Show("aktarim="+aktarim.ToString());		
+	    */	
+	    BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("Forex2Rate",aktarim);
+    }	
+}</ScriptText>
+</ScriptDefinition>

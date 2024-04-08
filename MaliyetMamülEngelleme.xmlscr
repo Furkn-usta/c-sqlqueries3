@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetMamülEngelleme" Enabled="false" Priority="0" ScriptName="MaliyetMamülEngelleme">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 8.03.2023 09:10:09
+function OnBeforePost(sender,ev)
+{
+	if(BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null )
+	return null;
+	
+	query="select UD_Iplik1,UD_Iplik2 ,UD_Iplik3 ,UD_Iplik4,UD_Iplik5,UD_Lot1 ,UD_Lot2,UD_Lot3,UD_Lot4,UD_Lot5,UD_Marka1,UD_Marka2,UD_Marka3,UD_Marka4,UD_Marka5,UD_Oran1,UD_Oran2,UD_Oran3,UD_Oran4,UD_Oran5,UD_Fiyat1,UD_Fiyat2,UD_Fiyat3,UD_Fiyat4,UD_Fiyat5,UD_İplikFire1,UD_İplikFire2,UD_İplikFire3,UD_İplikFire4,UD_İplikFire5,UD_İplikAlınan1,UD_İplikAlınan2,UD_İplikAlınan3,UD_İplikAlınan4,UD_İplikAlınan5,UD_KumasCinsi,FRawWidth,UD_İçerik,FRawWeight,UD_Pus,UD_Fayn,UD_ORMECİ,UD_OrmeFason,UD_MakinaCinsi,UD_İplikUzunluk   from IM_Item where RecId="+BaseObject.CurrentRow.Row["InventoryId"].ToString();
+	dt=UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+	for(l_i=0; l_i&lt;49; l_i++)
+	{
+	if(String.IsNullOrWhiteSpace(dt.Rows[0][l_i].ToString()))
+	{ BaseObject.ShowMessage("Mamül Kartın Kartela Detay Sayfasında Boş Alanlar var Lütfen Kontrol Ediniz ! {src:MaliyetMamülEngelleme}");
+	  ev.Cancel=true;
+	  return null;
+	}
+	}
+		
+}</ScriptText>
+</ScriptDefinition>

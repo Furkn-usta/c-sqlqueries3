@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetFireKomisyonTutarGirme" Enabled="true" Priority="0" ScriptName="MaliyetFireKomisyonTutarGirme">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 06.09.2023 10:55:58 
+// Maliyet ekranında açılan özel alanlarda UD_PrivatePrice(Özel Fire), UD_PrivatePrice2(Özel Komisyon) alanlarına girilen tutarlar standarttaki fire ve komisyon yüzdelerini hesaplar. MaliyetFireKomisyonTutarGirme
+
+gLock=false;
+function OnColumnChanged(sender, ev) 
+{
+
+     if(global:gLock)
+      return null;
+    
+   if(BaseObject.Name!="InitialCostEN" || ev.Row.Table.TableName != "MA_InitialCost" )
+     return null;
+   //Maliyet Ara Toplam  
+    if(ev.Row.IsNull("CostAmount1") || Convert.ToDecimal(ev.Row["CostAmount1"])&lt;0m)
+     return null;
+   //Fire Tutarı   
+      if(ev.Row.IsNull("WastageAmount") || Convert.ToDecimal(ev.Row["WastageAmount"])&lt;0m)
+     return null;
+   //G.Gider  Tutarı  
+      if(ev.Row.IsNull("GeneralExpenseAmount") || Convert.ToDecimal(ev.Row["GeneralExpenseAmount"])&lt;0m)
+     return null;
+  //Kar Tutarı
+    if(ev.Row.IsNull("ProfitAmount") || Convert.ToDecimal(ev.Row["ProfitAmount"])&lt;0m)
+     return null;
+
+    total = 0;
+    fire_tutar_ozel_ = 0;
+
+    
+
+     maliyet_ara_toplam = 0;
+     if(!ev.Row.IsNull("CostAmount1") &amp;&amp; Convert.ToDecimal(ev.Row["CostAmount1"])&gt;0m)
+		 maliyet_ara_toplam=Convert.ToDecimal(ev.Row["CostAmount1"]);
+
+      fire_tutari = 0;
+     if(!ev.Row.IsNull("WastageAmount") &amp;&amp; Convert.ToDecimal(ev.Row["WastageAmount"])&gt;0m)
+		 fire_tutari=Convert.ToDecimal(ev.Row["WastageAmount"]);
+
+     g_gider_tutari = 0;
+     if(!ev.Row.IsNull("GeneralExpenseAmount") &amp;&amp; Convert.ToDecimal(ev.Row["GeneralExpenseAmount"])&gt;0m)
+		 g_gider_tutari=Convert.ToDecimal(ev.Row["GeneralExpenseAmount"]);
+    
+    kar_tut = 0;
+     if(!ev.Row.IsNull("ProfitAmount") &amp;&amp; Convert.ToDecimal(ev.Row["ProfitAmount"])&gt;0m)
+		 kar_tut=Convert.ToDecimal(ev.Row["ProfitAmount"]);
+    
+     f_i = 0;
+     if(!ev.Row.IsNull("ForexId") &amp;&amp; Convert.ToInt32(ev.Row["ForexId"])&gt;0m)
+		 f_i = Convert.ToInt32(ev.Row["ForexId"]);
+    
+     f_i_2 = 0;
+     if(!ev.Row.IsNull("Forex2Id") &amp;&amp; Convert.ToInt32(ev.Row["Forex2Id"])&gt;0m)
+		 f_i_2 = Convert.ToInt32(ev.Row["Forex2Id"]);
+    
+     f_r = 0;
+     if(!ev.Row.IsNull("ForexRate") &amp;&amp; Convert.ToDecimal(ev.Row["ForexRate"])&gt;0m)
+		 f_r = Convert.ToDecimal(ev.Row["ForexRate"]);
+    
+     f_r_2 = 0;
+     if(!ev.Row.IsNull("Forex2Rate") &amp;&amp; Convert.ToDecimal(ev.Row["Forex2Rate"])&gt;0m)
+		 f_r_2 = Convert.ToDecimal(ev.Row["Forex2Rate"]);
+    
+
+
+
+     if(ev.Column.ColumnName=="UD_PrivatePrice") //Fire Oran
+      {
+           if(ev.Row.IsNull("UD_PrivatePrice") || Convert.ToDecimal(ev.Row["UD_PrivatePrice"])&lt;0m)
+             return null;
+             
+             fire_tutar_ozel = Convert.ToDecimal(ev.Row["UD_PrivatePrice"]);
+             
+            if(Convert.ToInt32(f_i) == 1)
+              fire_tutar_ozel_ = fire_tutar_ozel * Convert.ToDecimal(f_r);
+
+            if(Convert.ToInt32(f_i_2) == 1)
+              fire_tutar_ozel_ = fire_tutar_ozel * Convert.ToDecimal(f_r_2);
+
+
+             total = (fire_tutar_ozel_*100) / (maliyet_ara_toplam + fire_tutari + g_gider_tutari);
+           // MessageBox.Show("Total="+total.ToString());
+              ev.Row.SetField&lt;|decimal|&gt;("ProfitPercent", Convert.ToDecimal(total)); 
+      } 
+
+      if(ev.Column.ColumnName=="UD_PrivatePrice2") //Komisyon Oran
+      {
+          if(ev.Row.IsNull("UD_PrivatePrice2") || Convert.ToDecimal(ev.Row["UD_PrivatePrice2"])&lt;0m)
+             return null;
+             
+             fire_tutar_ozel = Convert.ToDecimal(ev.Row["UD_PrivatePrice2"]);
+             
+            if(Convert.ToInt32(f_i) == 1)
+              fire_tutar_ozel_ = fire_tutar_ozel * Convert.ToDecimal(f_r);
+
+            if(Convert.ToInt32(f_i_2) == 1)
+              fire_tutar_ozel_ = fire_tutar_ozel * Convert.ToDecimal(f_r_2);
+
+
+             total = (fire_tutar_ozel_*100) / (maliyet_ara_toplam + fire_tutari + g_gider_tutari + kar_tut + fire_tutar_ozel_);
+           //  MessageBox.Show("Total="+total.ToString());
+            ev.Row.SetField&lt;|decimal|&gt;("CommissionPercent", Convert.ToDecimal(total)); 
+      } 
+
+      
+}</ScriptText>
+</ScriptDefinition>

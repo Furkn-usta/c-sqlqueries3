@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MamülKartSatışDağıtım" Enabled="true" Priority="0" ScriptName="MamülKartSatışDağıtım">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 23.11.2022 12:13:42
+
+function OnBeforePost(sender , ev)
+{
+if(BaseObject!=null 
+    &amp;&amp; BaseObject.CurrentRow!=null 
+    &amp;&amp; BaseObject.CurrentRow.Row!=null  
+    &amp;&amp; BaseObject.IsNewRecord 
+    &amp;&amp; !BaseObject.CurrentRow.Row.IsNull("InventoryType")	
+	&amp;&amp; (Convert.ToInt16(BaseObject.CurrentRow.Row["InventoryType"])==6))
+
+	BaseObject.CurrentRow.Row.SetField&lt;|int|&gt;("UseForSale",1);
+
+}
+    	    </ScriptText>
+</ScriptDefinition>

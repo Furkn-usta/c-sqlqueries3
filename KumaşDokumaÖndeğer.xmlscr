@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumaşDokumaÖndeğer" Enabled="true" Priority="0" ScriptName="KumaşDokumaÖndeğer">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="RowChanged" FunctionName="OnRowChanged" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 04.05.2020 13:27:39
+function OnRowChanged (sender,eventArg){
+	if (BaseObject!=null &amp;&amp; eventArg.Row.Table.TableName == "IM_Item"  &amp;&amp; eventArg.Action==DataRowAction.Add){
+	     if(eventArg.Row[eventArg.Row.Table.Columns["AccessCode"]]!=DBNull.Value &amp;&amp; eventArg.Row[eventArg.Row.Table.Columns["AccessCode"]].ToString()=="FABRIC")
+	           eventArg.Row[eventArg.Row.Table.Columns["TexArtType"]] = 3;    
+	}
+}</ScriptText>
+</ScriptDefinition>

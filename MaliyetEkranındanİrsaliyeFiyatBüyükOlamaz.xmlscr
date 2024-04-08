@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetEkranınadanFiyatBüyükOlamaz" Enabled="true" Priority="0" ScriptName="MaliyetEkranınadanFiyatBüyükOlamaz">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 20.01.2023 12:18:45
+
+function OnBeforePost(sender, ev)
+{
+	if(BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null  || BaseObject.CurrentRow.Row.IsNull("ReceiptType") || BaseObject.CurrentRow.Row["ReceiptType"].ToString()!="1" )
+		return null;
+
+
+		
+	foreach (ri in BaseObject.Data.Tables["IM_ReceiptItem"].Select("RecId is not null"))
+	{
+
+	query="Select ici.UnitPrice Fiyat ,ici.InventoryId id ,ici.ForexUnitPrice Döviz from IM_ItemAllocation ia with (nolock) left join MA_WorkOrderItem woi with (nolock) on woi.RecId=ia.WorkOrderItemId  left join MA_WorkOrder wo with (nolock) on wo.RecId=woi.WorkOrderId  left join MA_InitialCost ic with (nolock) on ic.RecId=wo.InitialCostId left join MA_InitialCostItem ici with (nolock) on  ici.InitialCostId=ic.RecId where ici.CostItemType=1 and ici.InventoryId is not null and  ia.InventoryReceiptItemId="+ri["RecId"].ToString();
+	dt=UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query); 
+		if(dt==null)
+			   return null;
+			   
+
+if(dt.Rows[0]["id"]==ri["InventoryId"])
+{
+	 		if(dt.Rows[0]["Fiyat"]&lt; ri["UnitPrice"])
+	{   BaseObject.ShowMessage("Girilen Fiyat Maliyet Fiyatından Büyük Olamaz!");
+		ev.Cancel=true;
+		return null;
+	}
+			   
+
+	if(dt.Rows[0]["Döviz"]&lt; ri["ForexUnitPrice"])
+	{   BaseObject.ShowMessage("Girilen Döviz Fiyat Maliyet Doviz Fiyatından Büyük Olamaz!");
+		ev.Cancel=true;
+		return null;
+	}
+
+}
+}
+}</ScriptText>
+</ScriptDefinition>

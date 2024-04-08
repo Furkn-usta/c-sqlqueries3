@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetİplikMaliyetHesaplama" Enabled="true" Priority="0" ScriptName="MaliyetİplikMaliyetHesaplama">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 7.11.2023 15:28:22 MaliyetİplikMaliyetHesaplama
+function OnBeforePost(sender, ev)
+{
+	if( BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("UD_PrivatePrice"))
+		return null;
+	
+	double_gram =  Convert.ToInt32(BaseObject.CurrentRow.Row["UD_PrivatePrice"]);
+	foreach(ici in BaseObject.Data.Tables["MA_InitialCostItem"].Select("InitialCostCardId=19 and UD_KarisimOran is not null"))// InitialCostCardId=İplikMaliyetRecId
+	{
+		if(Convert.ToDecimal(ici["UD_KarisimOran"])  != 0 )
+		{
+			total_ = (Convert.ToDecimal(double_gram) * Convert.ToDecimal(ici["UD_KarisimOran"])) / 100 ;
+			ici.SetField&lt;|decimal|&gt;("UD_Total",Convert.ToDecimal(total_));
+		}
+	}
+}</ScriptText>
+</ScriptDefinition>

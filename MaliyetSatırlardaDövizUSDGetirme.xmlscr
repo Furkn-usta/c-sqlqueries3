@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetSatırlardaDövizUSDGetirme" Enabled="true" Priority="0" ScriptName="MaliyetSatırlardaDövizUSDGetirme">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InitialCostVM" />
+  </Events>
+  <Histories>
+    <History EditedBy="Furkan Usta" EntryDate="2023-09-06T00:00:00">
+      <Change>Maliyet satırlarında açınca ve satırda grup kodu ekleyince otomatik olarak döviz birimini USD olarak getirir.</Change>
+    </History>
+  </Histories>
+  <ScriptText>// Generated on 06.09.2023 10:55:58 
+/*	MaliyetSatırlardaDövizUSDGetirme	
+Maliyet satırlarında açınca ve satırda grup kodu ekleyince otomatik olarak döviz birimini USD olarak getirir.
+*/
+gLock = false;
+
+function OnColumnChanged(sender, ev) 
+{
+     if(global:gLock)
+      return null;
+    
+   if(BaseObject.Name!="InitialCostEN" || ev.Row.Table.TableName != "MA_InitialCostItem" )
+     return null;
+
+	if(ev.Column.ColumnName!="InitialCostCardId")
+		return null;
+	
+	if(ev.Column.ColumnName == "InitialCostCardId")
+	{	
+	
+        ev.Row.SetField&lt;|int|&gt;("ForexId",1);   
+	}
+}
+
+
+function OnViewLoaded(sender, ev)
+{
+   
+	if(BaseObject == null) 
+        return null;
+        
+   	foreach(ici in BaseObject.ActiveEntity.Data.Tables["MA_InitialCostItem"].Select("RecId is not null") )
+		{
+           ici.SetField&lt;|int|&gt;("ForexId",1);     
+        }
+}
+</ScriptText>
+</ScriptDefinition>

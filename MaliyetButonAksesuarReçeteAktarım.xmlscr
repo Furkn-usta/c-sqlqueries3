@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetButonAksesuarReçeteAktarım" Enabled="true" Priority="0" ScriptName="MaliyetButonAksesuarReçeteAktarım">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InitialCostVM" />
+  </Events>
+  <Histories />
+  <ScriptText>
+//Generated on 27.03.2024 13:22:30 MaliyetButonAksesuarReçeteAktarım
+function OnViewLoaded(sender, e)
+{
+    if(BaseObject != null)
+    {
+          BaseObject.FindControl("aksesuar_aktar").Click += ButtonClick; //butona name verilen isim CodebtnRun
+    }
+}
+
+
+function ButtonClick(sender, e)
+{
+		
+		if(BaseObject.ActiveEntity == null
+		|| BaseObject.ActiveEntity.CurrentRow == null
+		|| BaseObject.ActiveEntity.CurrentRow.Row == null
+    || BaseObject.ActiveEntity.CurrentRow.Row.IsNull("RecId"))
+			return null;
+  
+  str_query = 	"update MA_InitialCostItem set Quantity =0 where InitialCostCardId = 72 and InitialCostId =\'"+BaseObject.ActiveEntity.CurrentRow.Row["RecId"].ToString()+"\'";
+	str_dt = UtilityFunctions.GetDataTableList(BaseObject.ActiveEntity.Provider, BaseObject.ActiveEntity.Connection, BaseObject.ActiveEntity.Transaction, "str_dt",str_query);
+						if(str_dt==null || str_dt.Rows.Count&lt;0)
+							return null;
+
+}</ScriptText>
+</ScriptDefinition>

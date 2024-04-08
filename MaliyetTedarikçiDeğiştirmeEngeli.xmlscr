@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetTedarikçiDeğiştirmeEngeli" Enabled="true" Priority="0" ScriptName="MaliyetTedarikçiDeğiştirmeEngeli">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.10.2023 17:24:23 MaliyetTedarikçiDeğiştirmeEngeli
+
+function OnBeforePost(sender,ev)
+{
+    if (BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null
+    || BaseObject.IsCopyEntity)
+        return null;
+       
+	if(BaseObject.ActiveSession.User.RecId == 1 || BaseObject.ActiveSession.User.RecId == 18)
+		return null;
+
+/* 
+	if(BaseObject.ActiveSession.User.RecId != 1)
+		return null;
+		*/
+    foreach(ri in BaseObject.Data.Tables["MA_InitialCostItem"].Select("UD_Tedarikci is not null")) 
+                {
+                    old_tedarikci = "";
+					if (ri["UD_Tedarikci", DataRowVersion.Original] != DBNull.Value)
+						old_tedarikci = Convert.ToString(ri["UD_Tedarikci", DataRowVersion.Original]).Trim();
+					
+			    	new_tedarikci = "";
+					if (ri["UD_Tedarikci"] != DBNull.Value)
+						new_tedarikci = Convert.ToString(ri["UD_Tedarikci"]).Trim();
+					
+					if(old_tedarikci.ToString() != new_tedarikci.ToString())
+					{
+						sender.ShowMessage("Tedarikçi Sütununa Müdahale Yetkiniz Yoktur.! ");
+						ev.Cancel =  true;
+						return null;
+					}
+					
+                }
+}</ScriptText>
+</ScriptDefinition>

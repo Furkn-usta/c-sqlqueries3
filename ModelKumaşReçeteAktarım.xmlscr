@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="Model Kumaş Reçete Boya En" Enabled="true" Priority="0" ScriptName="Model Kumaş Reçete Boya En">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 01.12.2020 14:48:11
+function OnBeforePost(sender,eventArg)
+{
+	if (BaseObject != null &amp;&amp; BaseObject.CurrentRow != null &amp;&amp;  BaseObject.CurrentRow.Row != null &amp;&amp; !BaseObject.CurrentRow.Row.IsNull("InventoryType") &amp;&amp; Convert.ToInt16(BaseObject.CurrentRow.Row["InventoryType"]) == 100)
+	{
+		foreach(dr in BaseObject.Data.Tables["MA_RecipeItem"].Select("ItemType = 1"))
+		{
+			dr.SetField&lt;|decimal|&gt;("DyeWidth",Convert.ToDecimal(dr["MarkerWidth"]));
+			dr.SetField&lt;|decimal|&gt;("DyeWeight",Convert.ToDecimal(dr["M2Weight"]));	
+		}
+	}
+}</ScriptText>
+</ScriptDefinition>

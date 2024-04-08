@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumaşReçeteMiktar" Enabled="true" Priority="0" ScriptName="KumaşReçeteMiktar">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="Doğucan" EntryDate="2020-09-09T00:00:00">
+      <Change />
+    </History>
+  </Histories>
+  <ScriptText>function OnBeforePost(sender,eventArg){
+	if(BaseObject!=null &amp;&amp; BaseObject.CurrentRow!=null &amp;&amp; BaseObject.CurrentRow.Row!=null &amp;&amp; BaseObject.CurrentRow.Row["AccessCode"].ToString()=="FABRIC"){
+	    dr = BaseObject.Data.Tables["MA_RecipeItem"].Compute("Sum(Quantity)","");
+		if(dr &gt; 1){
+			BaseObject.ShowMessage("Reçete detayinda, toplam iplik miktari 1\'den büyük olamaz. {scr:KumaşReçeteMiktar}");
+			eventArg.Cancel=true;
+	        return null;
+	    }		
+    }		
+}</ScriptText>
+</ScriptDefinition>

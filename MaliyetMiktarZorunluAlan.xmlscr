@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetMiktarZorunluAlan" Enabled="true" Priority="0" ScriptName="MaliyetMiktarZorunluAlan">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 10.01.2024 19:18:33 MaliyetMiktarZorunluAlan
+function OnBeforePost(sender, ev)
+{
+if(BaseObject==null 	|| BaseObject.CurrentRow==null	|| BaseObject.CurrentRow.Row==null)
+		return null;
+type_ = "";
+	foreach(ici in BaseObject.Data.Tables["MA_InitialCostItem"].Select("CostItemType is not null or CostItemType=1 or CostItemType=2 or CostItemType=3"))
+	{
+		if(Convert.ToInt16(ici["CostItemType"]) == 1)
+            type_ = "Hammadde";
+        else if (Convert.ToInt16(ici["CostItemType"]) == 2)
+            type_ = "İşçilik";
+        else if (Convert.ToInt16(ici["CostItemType"]) == 3)
+            type_ = "Genel Gider";
+        
+       if(ici.IsNull("Quantity") || Convert.ToDecimal(ici["Quantity"])  == 0m)
+		{
+			BaseObject.ShowMessage(type_.ToString()+" Sekmesinde Miktar alanı boş olamaz! {scr:MaliyetMiktarZorunluAlan}");
+			ev.Cancel = true;
+			return null;
+		}               
+	}
+}</ScriptText>
+</ScriptDefinition>

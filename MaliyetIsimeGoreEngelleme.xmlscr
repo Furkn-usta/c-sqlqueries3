@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetIsimeGoreEngelleme" Enabled="true" Priority="0" ScriptName="MaliyetIsimeGoreEngelleme">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 15.11.2022 15:13:37
+	function OnBeforePost(sender, e)
+	
+{
+	new_date= new DateTime(2022,12,12);
+	if(BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null  )
+		return null;
+
+	if(new_date&gt;Convert.ToDateTime(BaseObject.CurrentRow.Row["InsertedAt"]))
+		return null;
+		foreach(ri in BaseObject.Data.Tables["MA_InitialCostItem"].Select("InventoryId is not null") )
+		{
+			query  = " select I.RecId from IM_Item I with (nolock) ";
+			query += " where I.InventoryCode like \'%AKS%\' AND I.RecId="+ri["InventoryId"].ToString();
+		    r = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction,"r",query); 	      
+	  
+  			if(r!=null &amp;&amp; r.Rows.Count&gt;0)
+  			{				
+				sender.ShowMessage("Aksesuar Kodlarinda AKS mevcut kontrol ediniz...! {scr..MaliyetIsmeGoreEngelleme}");	
+				e.Cancel=true;
+				return null;			
+			}
+		}
+}</ScriptText>
+</ScriptDefinition>

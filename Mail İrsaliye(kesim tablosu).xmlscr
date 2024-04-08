@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="İrsaliyeMail" Enabled="true" Priority="0" ScriptName="İrsaliyeMail">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 23.12.2022 17:09:38
+function OnAfterSucceededPost(sender,e)
+{
+	if(BaseObject!=null &amp;&amp; BaseObject.CurrentRow!=null &amp;&amp; BaseObject.CurrentRow.Row!=null &amp;&amp; Convert.ToInt16(BaseObject.CurrentRow.Row["ReceiptType"])==1)
+	{   Tahsis=String.Empty;
+		Uretim=String.Empty;
+		Cari=String.Empty;
+		Adi=String.Empty;
+ 		Kisi=String.Empty;
+ 		Fis=String.Empty;
+ 		Miktar=String.Empty;
+        Code=String.Empty;
+        OrderCariAdi=String.Empty;
+        Fiyat=String.Empty;
+ 		 mail=String.Empty;
+ 		 veriii=String.Empty;
+ 	
+ 		query="Select I.InventoryCode[Kodu],I.InventoryName[Malzeme Adı],re.ReceiptNo [fiş no],wo.WorkOrderNo[Order No],fi.CurrentAccountName [Order Müşteri],fi2.CurrentAccountName [Cari Hesap Kodu]  ,isnull(IA.Quantity,0) [Tahsis] , isnull(e.EMail,\' \')[Mail] from IM_ReceiptItem rei with (nolock) left join IM_Receipt re with (nolock) on rei.InventoryReceiptId=re.RecId   left join MA_WorkOrderItem woi with (nolock) on woi.RecId=rei.WorkOrderReceiptItemId left join MA_WorkOrder wo with (nolock) on wo.RecId=woi.WorkOrderId  left join FI_Account fi with (nolock) on fi.RecId=re.CurrentAccountId left join FI_Account fi2 with (nolock) on fi2.RecId=wo.CurrentAccountId  left join IM_ItemAllocation IA with (nolock) on IA.InventoryReceiptItemId=rei.RecId  left join IM_Item I with (nolock) on I.RecId=rei.InventoryId  left join HR_Employee e with (nolock) on e.RecId=wo.EmployeeId where re.RecId="+BaseObject.CurrentRow.Row["RecId"].ToString();
+ 		dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+ 		query2="select sum(Quantity) [Toplam Miktar] from IM_ReceiptItem rei where InventoryReceiptId="+BaseObject.CurrentRow.Row["RecId"].ToString();
+ 		dt2 = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt2",query2);
+
+			if(dt!=null &amp;&amp; dt.Rows.Count&gt;0)
+			 {
+				
+			 sb = new StringBuilder();                 
+                                sb.AppendLine("&lt;!DOCTYPE html&gt;");
+                                sb.AppendLine("&lt;html&gt;");
+                                sb.AppendLine("&lt;head&gt;");
+                                sb.AppendLine("&lt;meta charset= \"utf-8\"&gt;");
+                                sb.AppendLine("&lt;style&gt;");
+                                sb.AppendLine("body {");
+                                sb.AppendLine("font-family:verdana;");
+                                sb.AppendLine("}");
+                                sb.AppendLine("table {");
+                                sb.AppendLine("width:100%;");
+                                sb.AppendLine("}");
+                                sb.AppendLine("table, th, td {");
+                                sb.AppendLine("border: 3px solid #eee;");
+                                sb.AppendLine("border-collapse: collapse;");
+                                sb.AppendLine("}");
+                                sb.AppendLine("td {");
+                                sb.AppendLine("padding: 5px;");
+                                sb.AppendLine("}");
+                                sb.AppendLine("table th {");
+                                sb.AppendLine("color: black;");
+                                sb.AppendLine("}");
+                                sb.AppendLine("&lt;/style&gt;");
+                                sb.AppendLine("&lt;/head&gt;");
+                                sb.AppendLine("&lt;body&gt;");
+                                sb.AppendLine("&lt;table&gt;");
+                                sb.AppendLine("&lt;TR&gt;");
+                                sb.AppendLine("&lt;TH ALIGN=LEFT&gt; Malzeme Kodu&lt;/TH&gt;&lt;TH ALIGN=LEFT&gt; Malzeme Adı &lt;/TH&gt;&lt;TH ALIGN=LEFT&gt; Fiş No&lt;/TH&gt;&lt;TH ALIGN=LEFT&gt; Order No&lt;/TH&gt;&lt;TH ALIGN=LEFT&gt; Cari Hesap Adı&lt;/TH&gt;&lt;TH ALIGN=LEFT&gt; Order Müşteri Temsilcisi&lt;/TH&gt;&lt;TH ALIGN=LEFT&gt; Tahsis Miktarı&lt;/TH&gt; ");
+                                sb.AppendLine("&lt;/TR&gt;");
+                                for(l_i =0;l_i &lt; dt.Rows.Count;l_i++)
+                                	{   
+                                veriii+="&lt;TR&gt;&lt;TD&gt; "+dt.Rows[l_i]["Kodu"].ToString()+"&lt;/TD&gt;&lt;TD&gt;"+dt.Rows[l_i]["Malzeme Adı"].ToString()+"&lt;/TD&gt;&lt;TD&gt;"+dt.Rows[l_i]["fiş no"].ToString()+"&lt;/TD&gt;&lt;TD&gt; "+dt.Rows[l_i]["Order No"].ToString()+" &lt;/TD&gt;&lt;TD&gt;"+dt.Rows[l_i]["Cari Hesap Kodu"].ToString()+" &lt;/TD&gt;&lt;TD&gt;"+dt.Rows[l_i]["Order Müşteri"].ToString()+"&lt;/TD&gt;&lt;TD&gt;"+dt.Rows[l_i]["Tahsis"].ToString()+"&lt;/TD&gt;	&lt;/TR&gt;";
+                             
+ 								mail+=dt.Rows[l_i]["Mail"].ToString()+";";
+ 								
+ 								
+ 								}
+ 									
+                        		sb.AppendLine(veriii.ToString());
+                        			if(dt2==null &amp;&amp; dt2.Rows.Count&lt;0)
+			 						return null;
+			 						
+ 								sb.AppendLine(" &lt;th&gt;Toplam Miktar &lt;/th&gt; &lt;td colspan=6&gt;"+dt2.Rows[0]["Toplam Miktar"]+"&lt;/td&gt; ");
+								sb.AppendLine("&lt;/TABLE&gt;");
+								sb.AppendLine("&lt;/body&gt;");
+								sb.AppendLine("&lt;/html&gt;");
+									MessageBox.Show(sb.ToString());
+									MessageBox.Show(mail.ToString());
+					taskm=BaseObject.Container.Resolve&lt;|TaskMessageService|&gt;("TaskMessageService");
+								
+                   taskm.SendEmail("berzan.arslam@gmail.com ", "Order: "+Uretim+"",sb.ToString()+"Bilgi İşlem =&gt; tarafından otomatik olarak gönderilmiştir");
+			 
+			 }
+			  
+ 		}
+ 		  
+ }								
+ </ScriptText>
+</ScriptDefinition>

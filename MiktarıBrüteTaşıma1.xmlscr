@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MiktarıBrüteTaşıma" Enabled="true" Priority="0" ScriptName="MiktarıBrüteTaşıma">
+  <Events>
+    <Event Enabled="false" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="false" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" ObjectName="InvoiceEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InvoiceEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 21.11.2022 12:11:37
+
+function OnBeforePost(sender,ev)
+{
+	if(BaseObject==null || BaseObject.CurrentRow==null 
+	|| BaseObject.CurrentRow.Row==null)
+	return null;
+
+	if (BaseObject.CurrentRow.Row.IsNull("ReceiptType") 
+	|| Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"]) != 11 
+	|| Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptSubType"]) != 2)
+		return null;
+	
+	foreach( ri in BaseObject.Data.Tables["IM_ReceiptItem"].Select("In"))
+		ri.SetField&lt;|decimal|&gt;("GrossQuantity",Convert.ToDecimal(ri["Quantity"]));
+		
+}
+
+function OnColumnChanged(sender, ev)
+{
+
+		//	MessageBox.Show(BaseObject.Name);	
+	if(/*BaseObject.Name!="InventoryReceiptEN"
+	|| BaseObject.Name!="InvoiceEN" 
+	||*/ ev.Row.Table.TableName != "IM_ReceiptItem" 
+	|| ev.Row.IsNull("ReceiptType") 
+	|| ev.Row["ReceiptType"].ToString() != "11"
+	|| ev.Row["ReceiptSubType"].ToString() != "2")
+         return null;
+         
+   l_mik=0m;
+    if(!ev.Row.IsNull("Quantity") &amp;&amp; Convert.ToDecimal(ev.Row["Quantity"])&gt;0m)
+    l_mik=Convert.ToDecimal(ev.Row["Quantity"]); 	      
+         
+  if(ev.Column.ColumnName=="InventoryId" || ev.Column.ColumnName=="Quantity")
+	{	       
+	ev.Row.SetField&lt;|decimal|&gt;("GrossQuantity", Convert.ToDecimal(l_mik));
+//	MessageBox.Show("deneme");	    
+	}
+
+}
+
+
+</ScriptText>
+</ScriptDefinition>

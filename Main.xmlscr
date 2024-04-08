@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="Main script" Enabled="true" Priority="0" ScriptName="Main">
+  <Events>
+    <Event Enabled="true" />
+  </Events>
+  <Histories>
+    <History EditedBy="System generated" EntryDate="2013-10-31T10:52:40.70025+02:00">
+      <Change>System default version</Change>
+    </History>
+  </Histories>
+  <ScriptText>Initialized=true;</ScriptText>
+</ScriptDefinition>

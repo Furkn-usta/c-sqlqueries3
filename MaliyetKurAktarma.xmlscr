@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetKurAktarma" Enabled="true" Priority="0" ScriptName="MaliyetKurAktarma">
+  <Events>
+    <Event Enabled="false" ObjectName="InitialCostEN" />
+    <Event Enabled="false" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="FurkanUsta" EntryDate="2023-03-15T00:00:00">
+      <Change>/*
+Maliyet ekranındaki döviz kurlarının checkbox alan işaretlenince açılan özel alana taşınmasını sağlamaktadır.
+Açılan özel alana ilk işaretlemede kur girişlerinden tanımlama yapılan kur oranları maliyetin açıldığı ay ve yıl ile özel kurlar için girilen ay ve yıl eşleşerek ekrana gelmektedir. 
+Maliyet ekranı kapatılıp açılınca bir daha kur bilgilerinin alınmaması için UD_Count ismi ile açılan özel alan True olarak atanmaktadır. Bundan sonraki UD_Cntrl checkbox her
+işaretlendiğinde özel alan ve ForexRate alanları yer değiştirmektedir. Eğer ay ve yıl ile eşleşen bir veri bulunamazsa her hangi bir veri çekme işlemi yapmadan sadece alan taşıma çalışması yapmaktadır.
+*/</Change>
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 15.03.2023 15:46:00
+/*
+Maliyet ekranındaki döviz kurlarının checkbox alan işaretlenince açılan özel alana taşınmasını sağlamaktadır.
+Açılan özel alana ilk işaretlemede kur girişlerinden tanımlama yapılan kur oranları maliyetin açıldığı ay ve yıl ile özel kurlar için girilen ay ve yıl eşleşerek ekrana gelmektedir. 
+Maliyet ekranı kapatılıp açılınca bir daha kur bilgilerinin alınmaması için UD_Count ismi ile açılan özel alan True olarak atanmaktadır. Bundan sonraki UD_Cntrl checkbox her
+işaretlendiğinde özel alan ve ForexRate alanları yer değiştirmektedir. Eğer ay ve yıl ile eşleşen bir veri bulunamazsa her hangi bir veri çekme işlemi yapmadan sadece alan taşıma çalışması yapmaktadır.
+*/
+
+function OnColumnChanged(sender, ev)
+{
+	if(BaseObject == null 
+	|| BaseObject.CurrentRow.Row.IsNull("ForexRate")
+    || BaseObject.CurrentRow.Row.IsNull("Forex2Rate")
+     || BaseObject.CurrentRow.Row.IsNull("UD_Cntrl")
+    
+    || BaseObject.CurrentRow.Row.IsNull("GivenPriceForexRate")
+	|| BaseObject.ActiveSession == null || ev == null || ev.Row == null || ev.Row.Table == null || ev.Row.Table.TableName != "MA_InitialCost")
+		return null;
+	
+	if(ev.Column.ColumnName!="MA_InitialCost" &amp;&amp; ev.Row["UD_Count"].ToString()=="False" &amp;&amp; ev.Row["UD_Cntrl"].ToString()=="True"){
+	
+	 	ev.Row.SetField&lt;|string|&gt;("UD_Count","True");
+	 	BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("UD_Count","True");
+	 	
+	query=" select isnull(Month(IC.CostDate),0) [ay], isnull(year(IC.CostDate),0) [yil] from MA_InitialCost IC with (nolock) where IC.RecId=\'"+BaseObject.CurrentRow.Row["RecId"].ToString()+"\'";
+	dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt", query);
+	 
+	 	if(dt == null || dt.Rows.Count &lt; 0)
+	 	return null;
+	 	ay_=dt.Rows[0]["ay"].ToString();
+	 	yil_=dt.Rows[0]["yil"].ToString();
+	 	
+	 	
+	query2=" select isnull(FR.Price,0) [fiy_usd] from MD_Forex F with (nolock)		left join MD_ForexRate FR with (nolock) on FR.ForexId=F.RecId		where F.RecId =18 and month(FR.RateDate)=\'"+ay_.ToString()+"\' and year(FR.RateDate)=\'"+yil_+"\'";
+	dt2 = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt2", query2);
+	 
+	 	if(dt2 == null || dt2.Rows.Count &lt;= 0)
+	 	return null;
+	 	
+	query3=" select isnull(FR.Price,0) [fiy_eur] from MD_Forex F with (nolock)		left join MD_ForexRate FR with (nolock) on FR.ForexId=F.RecId		where F.RecId =19 and month(FR.RateDate)=\'"+ay_.ToString()+"\' and year(FR.RateDate)=\'"+yil_+"\'";
+	dt3 = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt3", query3);
+	 
+	 	if(dt3 == null || dt3.Rows.Count &lt;= 0)
+	 	return null;	
+	 			
+	 	
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov1",Convert.ToDecimal(dt2.Rows[0]["fiy_usd"]));
+			
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov2",Convert.ToDecimal(dt3.Rows[0]["fiy_eur"]));
+			
+	 	return null;
+	 		}
+	 		
+		if(ev.Column.ColumnName != "UD_Cntrl" || ev.Row.IsNull("UD_Cntrl")  )
+		return null;
+ 		if(ev.Row["UD_Cntrl"].ToString()=="True" &amp;&amp; ev.Column.ColumnName!="MA_InitialCost"){
+ 		               
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov1_1",Convert.ToDecimal(ev.Row["ForexRate"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov2_2",Convert.ToDecimal(ev.Row["Forex2Rate"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov3_3",Convert.ToDecimal(ev.Row["GivenPriceForexRate"]));
+		ev.Row.SetField&lt;|decimal|&gt;("ForexRate",Convert.ToDecimal(ev.Row["UD_Dov1"]));
+		ev.Row.SetField&lt;|decimal|&gt;("Forex2Rate",Convert.ToDecimal(ev.Row["UD_Dov2"]));
+		ev.Row.SetField&lt;|decimal|&gt;("GivenPriceForexRate",Convert.ToDecimal(ev.Row["UD_Dov3"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov1",Convert.ToDecimal(ev.Row["UD_Dov1_1"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov2",Convert.ToDecimal(ev.Row["UD_Dov2_2"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov3",Convert.ToDecimal(ev.Row["UD_Dov3_3"]));
+		
+	 	ev.Row.SetField&lt;|string|&gt;("UD_Count","True");
+         
+         }  
+         if(ev.Column.ColumnName != "UD_Cntrl" || ev.Row.IsNull("UD_Cntrl")  )
+		return null;
+ 		if(ev.Row["UD_Cntrl"].ToString()=="False" &amp;&amp; ev.Column.ColumnName!="MA_InitialCost"){
+ 		               
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov1_1",Convert.ToDecimal(ev.Row["ForexRate"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov2_2",Convert.ToDecimal(ev.Row["Forex2Rate"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov3_3",Convert.ToDecimal(ev.Row["GivenPriceForexRate"]));
+		ev.Row.SetField&lt;|decimal|&gt;("ForexRate",Convert.ToDecimal(ev.Row["UD_Dov1"]));
+		ev.Row.SetField&lt;|decimal|&gt;("Forex2Rate",Convert.ToDecimal(ev.Row["UD_Dov2"]));
+		ev.Row.SetField&lt;|decimal|&gt;("GivenPriceForexRate",Convert.ToDecimal(ev.Row["UD_Dov3"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov1",Convert.ToDecimal(ev.Row["UD_Dov1_1"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov2",Convert.ToDecimal(ev.Row["UD_Dov2_2"]));
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov3",Convert.ToDecimal(ev.Row["UD_Dov3_3"]));
+         
+	 	ev.Row.SetField&lt;|string|&gt;("UD_Count","True");
+        
+         
+         }
+         /*
+          foreach(dr in BaseObject.Data.Tables["MA_InitialCostItem"].Select())
+         {
+         //MessageBox.Show(dr["ForexId"].ToString());
+         if(dr["ForexId"].ToString() == ev.Row["ForexId"].ToString())
+         {
+         dr.SetField&lt;|decimal|&gt;("ForexRate",Convert.ToDecimal(ev.Row["ForexRate"]));
+         }
+           if(dr["ForexId"].ToString() == ev.Row["Forex2Id"].ToString())
+         {
+         dr.SetField&lt;|decimal|&gt;("ForexRate",Convert.ToDecimal(ev.Row["Forex2Rate"]));
+         }
+       
+         }
+         */
+ }	</ScriptText>
+</ScriptDefinition>

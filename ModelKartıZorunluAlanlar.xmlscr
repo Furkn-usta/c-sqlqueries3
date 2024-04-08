@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ModelKartiZorunluAlanlar" Enabled="true" Priority="0" ScriptName="ModelKartiZorunluAlanlar">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 04.05.2020 13:27:39
+function OnBeforePost(sender,eventArg){
+	if(BaseObject!=null &amp;&amp; BaseObject.CurrentRow!=null 
+	&amp;&amp; BaseObject.CurrentRow.Row!=null  
+	&amp;&amp; BaseObject.IsNewRecord
+	&amp;&amp; BaseObject.CurrentRow.Row.RowState!=DataRowState.Deleted 
+	&amp;&amp; BaseObject.CurrentRow.Row.RowState!=DataRowState.Detached 
+	&amp;&amp; Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"])==100)
+	{
+	    if(!string.IsNullOrWhiteSpace(BaseObject.CurrentRow.Row["SpecialCode"].ToString()) &amp;&amp; BaseObject.CurrentRow.Row["SpecialCode"].ToString() == "InitialCost")
+	        return null;
+	        
+		if(BaseObject.CurrentRow.Row.IsNull("InventoryName") || BaseObject.CurrentRow.Row["InventoryName"].ToString().Trim()=="")
+		{
+			sender.ShowMessage("Oluşturulan Modelin Adini Girmeden Kayit Edemezsiniz. src:{ModelKartiZorunluAlanlar} ");
+			 eventArg.Cancel =	true;
+			 return null;
+		}
+		
+		if(BaseObject.CurrentRow.Row.IsNull("ItemDepartmentId") || BaseObject.CurrentRow.Row["ItemDepartmentId"].ToString().Trim()=="")
+		{
+			sender.ShowMessage("Oluşturulan Modelin Departman Bilgisini Girmeden Kayit Edemezsiniz. src:{ModelKartiZorunluAlanlar} ");
+			eventArg.Cancel =	true;
+			 return null; 	
+		}
+		
+		if(BaseObject.CurrentRow.Row.IsNull("GroupId") || BaseObject.CurrentRow.Row["GroupId"].ToString().Trim()=="")
+		{
+			sender.ShowMessage("Oluşturulan Modelin Grup Kodu Bilgisini Girmeden Kayit Edemezsiniz. src:{ModelKartiZorunluAlanlar} ");
+			eventArg.Cancel =	true;
+			 return null; 	
+		}
+	
+		
+		if(BaseObject.CurrentRow.Row.IsNull("MarkId") || BaseObject.CurrentRow.Row["MarkId"].ToString().Trim()=="")
+		{
+			sender.ShowMessage("Oluşturulan Modelin Marka Bilgisini Girmeden Kayit Edemezsiniz. src:{ModelKartiZorunluAlanlar} ");
+			eventArg.Cancel =	true;
+			 return null;	
+		}
+		
+		if(BaseObject.CurrentRow.Row.IsNull("CurrentAccountId") || BaseObject.CurrentRow.Row["CurrentAccountId"].ToString().Trim()=="")
+		{
+			sender.ShowMessage("Oluşturulan Modelin Müşteri Bilgisini Girmeden Kayit Edemezsiniz. src:{ModelKartiZorunluAlanlar} ");
+			eventArg.Cancel =	true;
+			 return null;	
+		}
+		
+	}
+}</ScriptText>
+</ScriptDefinition>

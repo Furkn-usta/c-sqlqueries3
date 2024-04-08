@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetGBPSabitKur" Enabled="true" Priority="0" ScriptName="MaliyetGBPSabitKur">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 25.03.2024 14:37:47 MaliyetGBPSabitKur
+function OnBeforePost(sender,eventArg)
+{
+ if(BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null
+    || BaseObject.CurrentRow.Row.IsNull("Forex2Id")
+    || BaseObject.CurrentRow.Row.IsNull("Forex2Rate"))
+    return null;
+    
+   forex_name = "";
+   forex2Id = Convert.ToInt32(BaseObject.CurrentRow.Row["Forex2Id"]);
+   if(forex2Id == 1)
+   	forex_name="USD";
+   else if(forex2Id == 2)
+   	forex_name="EUR";
+   else if(forex2Id == 3)
+   	forex_name="GBP";
+   	
+   	if(!BaseObject.CurrentRow.Row.IsNull("UD_GbpKur"))
+		gbp_kur = Convert.ToDecimal(BaseObject.CurrentRow.Row["UD_GbpKur"]);
+	else
+		gbp_kur = 0m;
+   foreach(ici in BaseObject.Data.Tables["MA_InitialCostItem"].Select("ForexId = 3"))
+		{
+		if(forex_name=="GBP")
+			{
+				ici.SetField&lt;|decimal|&gt;("ForexRate",gbp_kur);
+			}
+		}
+}</ScriptText>
+</ScriptDefinition>

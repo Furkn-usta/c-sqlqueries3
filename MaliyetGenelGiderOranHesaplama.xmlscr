@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetGenelGiderOranHesaplama" Enabled="true" Priority="0" ScriptName="MaliyetGenelGiderOranHesaplama">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 25.03.2024 16:45:35 MaliyetGenelGiderOranHesaplama
+/*
+
+Maliyet ekranında genel giderler satırında girilen fiyatların toplamının maliyetin sağ üst tarafındaki TL altında "G.Gider ve Koleksiyon" karşılığına taşınmasını sağlar
+
+*/
+gTotal = 0m ;
+ggiderTotal = 0m;	
+function OnBeforePost(sender,ev)
+{
+    if(BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null )
+        return null;
+
+     	totalPriceishammadde = BaseObject.Data.Tables["MA_InitialCostItem"].Compute("SUM(UnitPrice)","CostItemType = 1");
+     	totalPriceiscilik = BaseObject.Data.Tables["MA_InitialCostItem"].Compute("SUM(UnitPrice)","CostItemType = 2");
+     	totalPriceggider = BaseObject.Data.Tables["MA_InitialCostItem"].Compute("SUM(UnitPrice)","CostItemType = 3");
+     	
+     	foreach(dr in BaseObject.Data.Tables["MA_InitialCostItem"].Select("CostItemType=1 or CostItemType=2"))
+		{	
+			if(dr.IsNull("UnitPrice"))
+				unit_price = 0m;
+			else
+				unit_price = Convert.ToDecimal(dr["UnitPrice"]);
+				
+			if(dr.IsNull("Quantity"))
+				quantity = 0m;
+			else
+				quantity = Convert.ToDecimal(dr["Quantity"]);
+		
+			if(dr.IsNull("Wastage"))
+				wastege = 1m;
+			else
+				wastege = Convert.ToDecimal(dr["Wastage"]);
+			
+			global:gTotal += (quantity*wastege/100)+quantity * unit_price;
+		
+			if(BaseObject.CurrentRow.Row.IsNull("WastagePercent"))
+				wpercent = 1m;
+			else
+				wpercent = Convert.ToDecimal(BaseObject.CurrentRow.Row["WastagePercent"]);
+			
+		}
+		     	foreach(dr in BaseObject.Data.Tables["MA_InitialCostItem"].Select("CostItemType=3 and Quantity &gt;0"))
+		{	
+			if(dr.IsNull("UnitPrice"))
+				unit_price = 0m;
+			else
+				unit_price = Convert.ToDecimal(dr["UnitPrice"]);
+				
+			if(dr.IsNull("Quantity"))
+				quantity = 0m;
+			else
+				quantity = Convert.ToDecimal(dr["Quantity"]);
+		
+			if(dr.IsNull("Wastage"))
+				wastege = 1m;
+			else
+				wastege = Convert.ToDecimal(dr["Wastage"]);
+			
+			global:ggiderTotal += (quantity*wastege/100)+quantity * unit_price;
+			dr.SetField&lt;|int|&gt;("Quantity",0);
+			
+				MessageBox.Show(global:gTotal.ToString());
+		
+		global:gTotal = (global:gTotal*wpercent/100)+global:gTotal;
+		g_oran = (global:ggiderTotal / (global:gTotal))*100;
+	/*
+		MessageBox.Show(global:gTotal.ToString());
+		MessageBox.Show(global:ggiderTotal.ToString());
+		MessageBox.Show(g_oran.ToString());
+		*/
+		BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("GeneralExpensePercent",Convert.ToDecimal(g_oran));
+	
+    	global:gTotal = 0m;
+    	global:ggiderTotal = 0m;
+		}
+		
+	
+}
+</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MasterYüzdeHesaplama" Enabled="true" Priority="0" ScriptName="MasterYüzdeHesaplama">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//04.11.2019 
+function OnBeforePost(sender,eventArg){
+    totalWastage=0m;
+    masterGramaj=0m;
+    yuzde=0m;
+	if(BaseObject != null &amp;&amp; BaseObject.CurrentRow != null &amp;&amp; BaseObject.CurrentRow.Row != null &amp;&amp; BaseObject.CurrentRow.Row.RowState != DataRowState.Detached &amp;&amp; BaseObject.CurrentRow.Row.RowState != DataRowState.Deleted &amp;&amp; !BaseObject.CurrentRow.Row.IsNull("InventoryType") &amp;&amp; BaseObject.CurrentRow.Row["InventoryType"].ToString()=="100" &amp;&amp; !BaseObject.CurrentRow.Row.IsNull("MasterWeight") &amp;&amp; Convert.ToDecimal(BaseObject.CurrentRow.Row["MasterWeight"])&gt;0 ){
+        foreach(dr in BaseObject.Data.Tables["MA_RecipeItem"].Select(" InventoryId is not null and isnull(ItemType,0) = 5")){
+		    if(dr.RowState != DataRowState.Deleted &amp;&amp; !dr.IsNull("UD_Miktar") &amp;&amp; Convert.ToDecimal(dr["UD_Miktar"])&gt;0){
+		        totalWastage+=Convert.ToDecimal(dr["UD_Miktar"]);
+		        yuzde=Convert.ToDecimal(dr["UD_Miktar"])*100/Convert.ToDecimal(BaseObject.CurrentRow.Row["MasterWeight"]);
+		        dr.SetField&lt;|decimal|&gt;("Quantity",Convert.ToDecimal(yuzde));
+		    }
+	    }
+	    if(totalWastage!=Convert.ToDecimal(BaseObject.CurrentRow.Row["MasterWeight"])){
+		    BaseObject.ShowMessage(totalWastage.ToString()+" Yüzde Gramaj toplamı Master Gramaja Eşit Olması gerekiyor.Lütfen Kontrol Ediniz! {scr:MasterYuzdeHesaplama}");
+			eventArg.Cancel=true;
+			return null;
+	    }
+    }
+}
+</ScriptText>
+</ScriptDefinition>

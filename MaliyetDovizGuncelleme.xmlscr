@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetDovizGuncelleme" Enabled="true" Priority="0" ScriptName="MaliyetDovizGuncelleme">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InitialCostVM" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 4.08.2022 15:00:24
+
+function UpdateICForexX(pr_udc)
+{
+    if(BaseObject.ActiveEntity.CurrentRow.Row.IsNull(pr_udc))
+        return null;
+
+	sForex = "0";
+    if(pr_udc == "UD_Kur1" &amp;&amp; !BaseObject.ActiveEntity.CurrentRow.Row.IsNull("Forex2Id"))
+		sForex = BaseObject.ActiveEntity.CurrentRow.Row["Forex2Id"].ToString();
+    else if(pr_udc == "UD_Kur" &amp;&amp; !BaseObject.ActiveEntity.CurrentRow.Row.IsNull("ForexId"))
+        sForex = BaseObject.ActiveEntity.CurrentRow.Row["ForexId"].ToString();
+	else
+        return null;
+
+    foreach(dt_row in BaseObject.ActiveEntity.Data.Tables["MA_InitialCostItem"].Select("ForexId="+sForex))
+    {
+        dt_row.SetField&lt;|decimal|&gt;("ForexRate",BaseObject.ActiveEntity.CurrentRow.Row[pr_udc]);
+    }
+}
+
+function UpdateInitialCostItemForex2(pr_obj)
+{
+	UpdateICForexX("UD_Kur1");   
+}
+function UpdateInitialCostItemForex1(pr_obj)
+{
+	UpdateICForexX("UD_Kur");
+}
+
+function OnViewLoaded(sender, ev)
+{
+	BaseObject.CommandList.AddCmd(999, "UpdateInitialCostItemForexCommand1", "Maliyet Döviz Güncelleme", UpdateInitialCostItemForex1, null);
+	BaseObject.CommandList.AddCmd(998, "UpdateInitialCostItemForexCommand2", "Maliyet Döviz Güncelleme", UpdateInitialCostItemForex2, null);
+}</ScriptText>
+</ScriptDefinition>

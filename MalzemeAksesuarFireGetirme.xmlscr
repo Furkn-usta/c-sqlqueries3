@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MalzemeAksesuarFireGetirme" Enabled="true" Priority="0" ScriptName="MalzemeAksesuarFireGetirme">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>function OnColumnChanged(sender, e)
+{
+	if (BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null 
+	|| BaseObject.CurrentRow.Row.IsNull("InventoryType") 
+	|| BaseObject.CurrentRow.Row["InventoryType"].ToString()!= "100")
+		return null;
+
+
+	if(	BaseObject.Extensions.ContainsKey("InventoryRecipeAccessoryServiceExtension") 
+	&amp;&amp; e.Row.Table.TableName == "MA_RecipeItem" 
+	&amp;&amp; e.Column.ColumnName == "InventoryId" 
+	&amp;&amp; !e.Row.IsNull("InventoryId")
+	&amp;&amp; Convert.ToInt16(e.Row["ItemType"]) == 4)
+	{
+		drs = BaseObject.Extensions["InventoryRecipeAccessoryServiceExtension"].RecipeTable.Select("OriginalRowId = " + e.Row["RecId"].ToString());
+	
+		if(drs != null &amp;&amp; drs.Length &gt; 0)
+		{			
+			query="select [I].TrimClassCardId [aks_tip] from IM_Item [I] with (nolock)where [I].RecId="+e.Row["InventoryId"].ToString();
+			dt= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query); 
+			
+			if(dt!=null &amp;&amp; dt.Rows.Count &gt; 0)
+			{
+	 		aks_tipi_id = dt.Rows[0]["aks_tip"].ToString(); 	
+
+				if(aks_tipi_id.ToString().Trim()=="22430")
+					{
+					e.Row.SetField&lt;|int|&gt;("Wastage",10);
+					drs[0].SetField&lt;|int|&gt;("Wastage",10);
+					}
+				if(aks_tipi_id.ToString().Trim()=="1196")
+					{
+					e.Row.SetField&lt;|int|&gt;("Wastage",5);
+					drs[0].SetField&lt;|int|&gt;("Wastage",5);
+					}
+			
+			}
+				
+		}
+	}
+}
+
+
+</ScriptText>
+</ScriptDefinition>

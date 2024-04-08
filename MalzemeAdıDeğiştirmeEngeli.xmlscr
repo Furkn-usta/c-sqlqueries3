@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MalzemeAdıDeğiştirmeEngeli" Enabled="true" Priority="0" ScriptName="MalzemeAdıDeğiştirmeEngeli">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 26.09.2023 10:02:20 MalzemeAdıDeğiştirmeEngeli
+/*
+Kumaş ve Aksesuar kartlarında ilk kayıttan sonra adı kısımında yazılanın değiştirilmesini engeller
+*/
+function OnBeforePost(sender,ev)
+{
+    if (BaseObject == null
+    || BaseObject.CurrentRow == null
+    || BaseObject.CurrentRow.Row == null
+    || BaseObject.CurrentRow.Row.IsNull("InventoryName")  
+    || BaseObject.CurrentRow.Row.IsNull("AccessCode")  
+    || BaseObject.IsNewRecord)
+        return null;
+	
+	if (BaseObject.CurrentRow.Row["AccessCode"].ToString() == "YARN")
+        return null;
+        
+        old_name_="";
+	if(BaseObject.CurrentRow.Row["AccessCode"].ToString()=="TRIM" || BaseObject.CurrentRow.Row["AccessCode"].ToString()=="FABRIC")
+	{	
+		if (BaseObject.CurrentRow.Row["InventoryName", DataRowVersion.Original] != DBNull.Value)
+			old_name_ = Convert.ToString(BaseObject.CurrentRow.Row["InventoryName", DataRowVersion.Original]);
+
+		new_name_="";
+
+		if (BaseObject.CurrentRow.Row["InventoryName"] != DBNull.Value)
+			new_name_ = Convert.ToString(BaseObject.CurrentRow.Row["InventoryName"].ToString());
+	
+        if(old_name_ != new_name_)
+		{
+            BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("InventoryName",old_name_.ToString());
+        }
+    }
+}</ScriptText>
+</ScriptDefinition>

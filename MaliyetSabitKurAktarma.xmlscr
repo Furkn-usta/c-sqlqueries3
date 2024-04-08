@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetSabitKurAktarma" Enabled="true" Priority="0" ScriptName="MaliyetSabitKurAktarma">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="Furkan Usta" EntryDate="2023-03-22T00:00:00">
+      <Change>ForexId seçildiği zaman USD ve EUR için kur girişlerinde yazılan SUSD ve SEUR bilgilerini açılan özel alana aktarmaktadır.</Change>
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 22.03.2023 08:56:45
+/*
+ForexId seçildiği zaman USD ve EUR için kur girişlerinde yazılan SUSD ve SEUR bilgilerini açılan özel alana aktarmaktadır.
+*/
+function OnColumnChanged(sender, ev)
+{
+	if(BaseObject == null 
+    || BaseObject.CurrentRow == null
+    || BaseObject.CurrentRow.Row == null 
+    || BaseObject.CurrentRow.Row.IsNull("ForexId")
+    || BaseObject.CurrentRow.Row.IsNull("CostDate")
+    || BaseObject.CurrentRow.Row.IsNull("UD_USDCheck")
+    || BaseObject.CurrentRow.Row.IsNull("UD_EURCheck")
+	|| BaseObject.ActiveSession == null || ev == null || ev.Row == null || ev.Row.Table == null || ev.Row.Table.TableName != "MA_InitialCost" )
+		return null;
+	
+if(ev.Row["ForexId"].ToString()=="1" &amp;&amp;  ev.Row.Table.TableName == "MA_InitialCost" &amp;&amp; ev.Row["UD_USDCheck"].ToString()=="False")
+{
+date_ = BaseObject.CurrentRow.Row["CostDate"].ToString();
+month_ = date_.Substring(3,2);
+year_  = date_.Substring(6,4);
+
+	query2=" select isnull(FR.Price,0) [fiy_usd] from MD_Forex F with (nolock)		left join MD_ForexRate FR with (nolock) on FR.ForexId=F.RecId		where F.RecId =18 and month(FR.RateDate)=\'"+month_+"\' and year(FR.RateDate)=\'"+year_+"\'";
+	dt2 = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt2", query2);
+MessageBox.Show(query2);
+	 	if(dt2 != null &amp;&amp; dt2.Rows.Count &gt;= 0)
+	 	{
+	 
+	ev.Row.SetField&lt;|string|&gt;("UD_USDCheck","True");
+	ev.Row.SetField&lt;|string|&gt;("UD_EURCheck","False");
+	
+		usd_ = Convert.ToDecimal(dt2.Rows[0]["fiy_usd"]);
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov1",usd_);
+		
+	}
+}
+	
+	
+	
+if(ev.Row["ForexId"].ToString()=="2" &amp;&amp;  ev.Row.Table.TableName == "MA_InitialCost" &amp;&amp; ev.Row["UD_EURCheck"].ToString()=="False")
+{
+	
+date_ = BaseObject.CurrentRow.Row["CostDate"].ToString();
+month_ = date_.Substring(3,2);
+year_  = date_.Substring(6,4);
+	 	
+	query2=" select isnull(FR.Price,0) [fiy_eur] from MD_Forex F with (nolock)		left join MD_ForexRate FR with (nolock) on FR.ForexId=F.RecId		where F.RecId =19 and month(FR.RateDate)=\'"+month_+"\' and year(FR.RateDate)=\'"+year_+"\'";
+	dt2 = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt2", query2);
+	 	MessageBox.Show(query2);
+	 	if(dt2 != null &amp;&amp; dt2.Rows.Count &gt;= 0)
+	 {
+	
+	ev.Row.SetField&lt;|string|&gt;("UD_EURCheck","True");
+	ev.Row.SetField&lt;|string|&gt;("UD_USDCheck","False");
+	
+ 	eur_ = Convert.ToDecimal(dt2.Rows[0]["fiy_eur"]);
+		ev.Row.SetField&lt;|decimal|&gt;("UD_Dov1",eur_);
+		
+	}
+	}
+	
+	
+	}
+	
+</ScriptText>
+</ScriptDefinition>

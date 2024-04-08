@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumaşUreticiUrunKoduUretici" Enabled="true" Priority="0" ScriptName="KumaşUreticiUrunKoduUretici">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.02.2024 17:02:16 KumaşUreticiUrunKoduUretici
+
+function OnBeforePost(sender,ev)
+    {
+    
+        if(BaseObject == null 	
+        || BaseObject.CurrentRow == null 	
+        || BaseObject.CurrentRow.Row == null
+        || !BaseObject.IsNewRecord
+        || BaseObject.CurrentRow.Row.IsNull("AccessCode")
+        || BaseObject.CurrentRow.Row.IsNull("SpecialCode")
+        || BaseObject.CurrentRow.Row.IsNull("UD_KumasAdKod")
+        || BaseObject.CurrentRow.Row.IsNull("UD_KumasDurumu")
+        || BaseObject.CurrentRow.Row["AccessCode"].ToString() != "FABRIC")
+            return null;
+
+           
+            sb2 = new StringBuilder();
+            sb2.Clear();
+            /*
+            sb = new StringBuilder();
+            sb.Clear();
+            sb.AppendLine("select isnull(G.GroupName,\'\') [g_name] from  IM_Group G with (nolock)");                   
+            sb.AppendLine("where G.RecId=\'"+BaseObject.CurrentRow.Row["GroupId"].ToString()+"\'");
+            dt_sb= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb",sb.ToString());
+			
+            if(dt_sb == null || dt_sb.Rows.Count &lt;0)
+                return null;
+*/
+
+            sb2.AppendLine("select isnull(DFV.Explanation,\'\')[exp] from MD_DataField DF with (nolock) ");
+            sb2.AppendLine("left join MD_DataFieldValue DFV with (nolock) on DFV.FieldId=DF.RecId	 ");
+            sb2.AppendLine("where DF.TableName=\'IM_Item\' and DFV.FieldId=82 and DFV.CodeValue=\'"+BaseObject.CurrentRow.Row["UD_KumasDurumu"].ToString()+"\'");    
+            dt_sb2= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb2",sb2.ToString());
+			
+            if(dt_sb2 == null || dt_sb2.Rows.Count &lt;0)
+                return null;
+                
+            kumas_ = BaseObject.CurrentRow.Row["SpecialCode"].ToString();
+            kumasAdiKodu_ = BaseObject.CurrentRow.Row["UD_KumasAdKod"].ToString();
+            exp_name_=dt_sb2.Rows[0]["exp"].ToString(); 
+
+           BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("ProducerInventoryCode",kumas_.ToString()+" "+kumasAdiKodu_.ToString()+" "+exp_name_.ToString());
+    }
+
+
+                             </ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MüsteriRenkNoTasima" Enabled="true" Priority="0" ScriptName="MüsteriRenkNoTasima">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>
+function OnAfterSucceededPost(sender,eventArg)
+{
+	if(BaseObject==null 
+	|| BaseObject.CurrentRow==null
+	|| BaseObject.CurrentRow.Row==null
+    || BaseObject.CurrentRow.Row.IsNull("ReceiptType")
+    || Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"])!=2)
+    return null;
+	
+
+			foreach(dr in BaseObject.Data.Tables["IM_OrderReceiptItem"].Select("WorkOrderReceiptItemId is not null"))
+		{	
+            	str="select top 1 WOI.WorkOrderId [woid] from MA_WorkOrderItem WOI with (nolock) where WOI.RecId="+dr["WorkOrderReceiptItemId"].ToString();
+    		    dt = UtilityFunctions.GetDataTableList(BaseObject.ActiveSession.DBInfo.DBProvider, BaseObject.ActiveSession.DBInfo.Connection, null, "dt", str);
+
+                	if(dt==null || dt.Rows.Count&lt;0 )
+	  		            return null;
+
+                 uretim_emri=dt.Rows[0]["woid"].ToString();
+                 UtilityFunctions.SqlCustomScalarQuery(BaseObject.Connection,null,"update MA_WorkOrder set UD_MüsteriRenkNo=\'"+dr["UD_MüsteriRenkNo"].ToString()+"\'where RecId="+uretim_emri);
+						
+		}
+					 
+}
+
+
+function OnBeforePost(sender,ev)
+{
+	if(BaseObject==null 
+	|| BaseObject.CurrentRow==null
+	|| BaseObject.CurrentRow.Row==null
+    || BaseObject.CurrentRow.Row.IsNull("ReceiptType")
+    || Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"])!=1)
+    return null;
+        foreach(drr in BaseObject.Data.Tables["IM_ReceiptItem"].Select("WorkOrderReceiptItemId is not null"))
+		{	
+            query="select WO.CustomerOrderNo [con], WO.UD_MüsteriRenkNo [mrn] from MA_WorkOrderItem WOI with (nolock) ";
+            query+=" left join MA_WorkOrder WO with (nolock) on WOI.WorkOrderId=WO.RecId ";
+            query+=" where WOI.RecId="+drr["WorkOrderReceiptItemId"].ToString();
+            
+            dtt = UtilityFunctions.GetDataTableList(BaseObject.ActiveSession.DBInfo.DBProvider, BaseObject.ActiveSession.DBInfo.Connection, null, "dtt", query);
+            
+            if(dtt==null || dtt.Rows.Count&lt;0 )
+	  		            return null;
+
+            musteri_order_no=dtt.Rows[0]["con"].ToString();
+            musteri_renk_no=dtt.Rows[0]["mrn"].ToString();
+                        
+            drr.SetField&lt;|string|&gt;("CustomerOrderNo",musteri_order_no);
+            drr.SetField&lt;|string|&gt;("UD_MüsteriRenkNo",musteri_renk_no);
+            
+        }        
+}</ScriptText>
+</ScriptDefinition>

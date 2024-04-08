@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MalzemeKopyalamaKontrol" Enabled="true" Priority="0" ScriptName="MalzemeKopyalamaKontrol">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnSBeforePost" ObjectName="ServiceEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 16.01.2024 12:13:54
+function OnBeforePost(sender, ev)
+{
+	if(BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("InventoryCode")
+	)
+		return null;
+	
+	
+		query = "select count(isnull(I.InventoryCode,\'\')) [cnt] from IM_Item I with (nolock) where I.InventoryCode=\'"+BaseObject.CurrentRow.Row["InventoryCode"].ToString()+"\'";
+	//	MessageBox.Show(query);
+		dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+				if(dt == null || dt.Rows.Count &lt;= 0)
+					return null;
+					
+		if(Convert.ToInt32(dt.Rows[0]["cnt"])&lt;=1)
+		{
+		sender.ShowMessage("Kopyalama Yapınız");
+		}
+}
+
+//Generated on 16.01.2024 12:13:54
+function OnSBeforePost(sender, ev)
+{
+	if(BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("ServiceCode")
+	)
+		return null;
+	
+	
+		query = "select count(isnull(I.ServiceCode,\'\')) [cnt] from SM_Service I with (nolock) where I.ServiceCode=\'"+BaseObject.CurrentRow.Row["ServiceCode"].ToString()+"\'";
+	//	MessageBox.Show(query);
+		dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+				if(dt == null || dt.Rows.Count &lt;= 0)
+					return null;
+					
+		if(Convert.ToInt32(dt.Rows[0]["cnt"])&lt;=1)
+		{
+		sender.ShowMessage("Kopyalama Yapınız");
+		}
+}</ScriptText>
+</ScriptDefinition>

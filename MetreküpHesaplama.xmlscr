@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ÇekiListesiMetreküpHesaplama" Enabled="false" Priority="0" ScriptName="ÇekiListesiMetreküpHesaplama">
+  <Events>
+    <Event Enabled="true" ObjectName="PackagingListVM" />
+    <Event Enabled="true" EventName="OnBeforeCommandExecution" FunctionName="OnBeforeCommandExecution" ObjectName="PackagingListVM" />
+    <Event Enabled="true" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="PackagingListEN" />
+  </Events>
+  <Histories />
+  <ScriptText>
+function OnBeforeCommandExecution (sender ,eventArg){
+	if(BaseObject.ActiveEntity != null &amp;&amp; BaseObject.ActiveEntity.CurrentRow != null &amp;&amp; BaseObject.ActiveEntity.CurrentRow.Row != null 
+	&amp;&amp; BaseObject.ActiveEntity.CurrentRow.Row.RowState!=DataRowState.Deleted &amp;&amp; BaseObject.ActiveEntity.CurrentRow.Row.RowState!=DataRowState.Detached ){
+          if(eventArg.CommandName == "PostDataCommand" &amp;&amp; Convert.ToInt32(BaseObject.ActiveEntity.CurrentRow.Row["UD_Guncelleme"])==0 ){
+           foreach(itemRow in BaseObject.ItemDetailDataTable.Rows){ 
+       
+	        en=0m;boy=0m;yukseklik=0m;metreKup=0m;toplamMetreKup=0m;             
+		    if(!itemRow.IsNull("UD_En") &amp;&amp; Convert.ToDecimal(itemRow["UD_En"])&gt;0)   
+	            en=Convert.ToDecimal(itemRow["UD_En"])/100;
+	        if(!itemRow.IsNull("UD_Boy") &amp;&amp; Convert.ToDecimal(itemRow["UD_Boy"])&gt;0)  
+	            boy=Convert.ToDecimal(itemRow["UD_Boy"])/100; 
+	        if(!itemRow.IsNull("UD_Yukseklik") &amp;&amp; Convert.ToDecimal(itemRow["UD_Yukseklik"])&gt;0)   
+	            yukseklik=Convert.ToDecimal(itemRow["UD_Yukseklik"])/100;	        
+	        if(en&gt;0 &amp;&amp; boy&gt;0 &amp;&amp; yukseklik&gt;0) 
+	          metreKup=en*boy*yukseklik;
+		    if(BaseObject.ItemDetailDataTable != null &amp;&amp; BaseObject.ItemDetailDataTable.Rows.Count &gt; 0){ 
+			
+			       			  	          
+			        koliSayisi=0;
+			        if(itemRow.RowState!=DataRowState.Deleted &amp;&amp; itemRow.RowState!=DataRowState.Detached &amp;&amp; metreKup&gt;0){
+			          
+			            if(!itemRow.IsNull("PackagingCount") &amp;&amp; Convert.ToInt32(itemRow["PackagingCount"])&gt;0)
+			                koliSayisi=Convert.ToInt32(itemRow["PackagingCount"]);
+			            if(koliSayisi&gt;0)
+			                toplamMetreKup+=koliSayisi*metreKup; 
+			        }
+    
+	            }	         
+		    }
+		   itemRow.SetField&lt;|Decimal|&gt;("UD_ToplamMetreKup",(Decimal)toplamMetreKup);
+		    if(metreKup!=0m)
+	         itemRow.SetField&lt;|String|&gt;("Dimension",en.ToString("###")+"*"+boy.ToString("###")+"*"+yukseklik.ToString("###"));
+
+		}
+	}
+}
+function OnBeforePost(sender ,eventArg){
+	if(BaseObject != null &amp;&amp; BaseObject.CurrentRow != null &amp;&amp; BaseObject.CurrentRow.Row != null 
+	&amp;&amp; BaseObject.CurrentRow.Row.RowState!=DataRowState.Deleted &amp;&amp; BaseObject.CurrentRow.Row.RowState!=DataRowState.Detached &amp;&amp;  Convert.ToInt32(BaseObject.CurrentRow.Row["UD_Guncelleme"])==0 ){
+	
+		foreach(itemRow in BaseObject.Data.Tables["IM_PackagingListItem"].Rows)
+	{
+	
+        en=0m;boy=0m;yukseklik=0m;metreKup=0m;toplamMetreKup=0m;             
+	    if(!itemRow.IsNull("UD_En") &amp;&amp; Convert.ToDecimal(itemRow["UD_En"])&gt;0)   
+	        en=Convert.ToDecimal(itemRow["UD_En"])/100;
+	    if(!itemRow.IsNull("UD_Boy") &amp;&amp; Convert.ToDecimal(itemRow["UD_Boy"])&gt;0)  
+	        boy=Convert.ToDecimal(itemRow["UD_Boy"])/100; 
+	    if(!itemRow.IsNull("UD_Yukseklik") &amp;&amp; Convert.ToDecimal(itemRow["UD_Yukseklik"])&gt;0)   
+	        yukseklik=Convert.ToDecimal(itemRow["UD_Yukseklik"])/100;	        
+	    if(en&gt;0 &amp;&amp; boy&gt;0 &amp;&amp; yukseklik&gt;0) 
+	      metreKup=en*boy*yukseklik;
+	
+	        if(itemRow.RowState!=DataRowState.Deleted &amp;&amp; itemRow.RowState!=DataRowState.Detached &amp;&amp; metreKup&gt;0m){
+	            s1=0;s2=0;koliSayisi=0;
+	            if(!itemRow.IsNull("StartPackaging") &amp;&amp; Convert.ToInt32(itemRow["StartPackaging"])&gt;0)
+	               s1=Convert.ToInt32(itemRow["StartPackaging"]);
+	            if(!itemRow.IsNull("EndPackaging") &amp;&amp; Convert.ToInt32(itemRow["EndPackaging"])&gt;0)
+	               s2=Convert.ToInt32(itemRow["EndPackaging"]);
+	            koliSayisi=s2-s1+1; 
+	            mkup=koliSayisi*metreKup;
+	            MessageBox.Show(mkup.ToString());
+	            itemRow.SetField&lt;|Decimal|&gt;("UD_ToplamMetreKup",(Decimal)mkup);
+	        }  
+	        else if(itemRow.RowState!=DataRowState.Deleted &amp;&amp; itemRow.RowState!=DataRowState.Detached &amp;&amp; metreKup==0m)
+	           itemRow.SetField&lt;|Decimal|&gt;("UD_ToplamMetreKup",0m);
+	           if(metreKup!=0m)
+	         itemRow.SetField&lt;|String|&gt;("Dimension",itemRow["UD_En"].ToString()+"*"+itemRow["UD_Boy"].ToString()+"*"+itemRow["UD_Yukseklik"].ToString());
+
+        }	         
+    }
+}</ScriptText>
+</ScriptDefinition>

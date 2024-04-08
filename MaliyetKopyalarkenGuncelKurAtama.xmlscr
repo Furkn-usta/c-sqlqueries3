@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetKopyalarkenGuncelKurAtama" Enabled="true" Priority="0" ScriptName="MaliyetKopyalarkenGuncelKurAtama">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 25.10.2023 10:57:07 MaliyetKopyalarkenGuncelKurAtama
+function OnBeforePost(sender,ev)
+{
+	if(BaseObject == null
+	||BaseObject.CurrentRow == null
+	||BaseObject.CurrentRow.Row == null	)
+		return null;
+	if(BaseObject.IsCopyEntity.ToString() == "False")
+		return null;	
+	
+					sb = new StringBuilder();
+					sb2 = new StringBuilder();					
+					sb3 = new StringBuilder();
+                    sb.Clear();
+                    sb2.Clear();
+                    sb3.Clear();
+                if(!BaseObject.CurrentRow.Row.IsNull("ForexId"))
+                {
+                    sb.AppendLine("select isnull(DFR.Price,0) [price] from MD_ForexRate DFR with (nolock) where DFR.ForexId=\'"+Convert.ToInt32(BaseObject.CurrentRow.Row["ForexId"])+"\' and DFR.RateId=1 and convert(date,DFR.RateDate,104) = convert(date,GETDATE(),104)");
+					dt_sb = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb",sb.ToString());
+                      
+                    if(dt_sb != null || dt_sb.Rows.Count &gt; 0)
+                        {
+                            BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("ForexRate",Convert.ToDecimal(dt_sb.Rows[0]["price"]));
+                        }
+                 }  
+                 if(!BaseObject.CurrentRow.Row.IsNull("Forex2Id"))
+                {  
+                    sb2.AppendLine("select isnull(DFR.Price,0) [price] from MD_ForexRate DFR with (nolock) where DFR.ForexId=\'"+Convert.ToInt32(BaseObject.CurrentRow.Row["Forex2Id"])+"\' and DFR.RateId=1 and convert(date,DFR.RateDate,104) = convert(date,GETDATE(),104)");
+					dt_sb2 = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb2",sb2.ToString());
+                    
+                     if(dt_sb2 != null || dt_sb2.Rows.Count &gt; 0)
+                        {
+                            BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("Forex2Rate",Convert.ToDecimal(dt_sb2.Rows[0]["price"]));
+                        }
+                 }  
+                  if(!BaseObject.CurrentRow.Row.IsNull("GivenPriceForexId"))
+                {   
+                     sb3.AppendLine("select isnull(DFR.Price,0) [price] from MD_ForexRate DFR with (nolock) where DFR.ForexId=\'"+Convert.ToInt32(BaseObject.CurrentRow.Row["GivenPriceForexId"])+"\' and DFR.RateId=1 and convert(date,DFR.RateDate,104) = convert(date,GETDATE(),104)");
+					dt_sb3 = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb3",sb3.ToString());
+                     
+                     if(dt_sb3 != null || dt_sb3.Rows.Count &gt; 0)
+                        {
+                            BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("GivenPriceForexRate",Convert.ToDecimal(dt_sb3.Rows[0]["price"]));
+                        }
+                }
+}</ScriptText>
+</ScriptDefinition>

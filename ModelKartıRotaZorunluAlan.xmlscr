@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ModelKartıRotaZorunluAlan" Enabled="true" Priority="0" ScriptName="ModelKartıRotaZorunluAlan">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>function OnBeforePost(sender, ev)
+{
+	if(BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null || BaseObject.CurrentRow.Row.IsNull("InventoryType") || Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"])!=100 )
+		return null;
+
+	if(BaseObject.CurrentRow.Row.IsNull("RouteId") || Convert.ToInt32(BaseObject.CurrentRow.Row["RouteId"])  == 0)
+	{
+		BaseObject.ShowMessage("Rota alanı boş olamaz! {scr:ModelKartıRotaZorunluAlan}");
+		ev.Cancel = true;
+		return null;
+	}
+}
+</ScriptText>
+</ScriptDefinition>

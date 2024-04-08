@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description=" ToplamKur  0 True" Enabled="true" Priority="0" ScriptName="ToplamKur">
+  <Events>
+    <Event Enabled="true" ObjectName="InvoiceEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InvoiceEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 1.03.2023 14:17:48
+//Açılan chekboxlı özel alan true olduğunda faturanın toplmaı ve dolar kuru gelmesi
+
+function OnColumnChanged(sender,e){
+    if(BaseObject!=null 
+       &amp;&amp; BaseObject.CurrentRow!=null 
+       &amp;&amp; BaseObject.CurrentRow.Row!=null
+       &amp;&amp; e.Row.Table.TableName == "IM_Invoice"
+       &amp;&amp; e.Column.ColumnName == "UD_Kur")
+       
+ {		toplam=0m;	
+ 
+
+	query = "Select top 1 fr.Price from MD_Forex F left join MD_ForexRate fr on F.RecId=fr.ForexId where ForexCode=\'"+BaseObject.CurrentRow.Row["UD_Kur"].ToString()+"\' order by fr.RecId desc";
+			
+			dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+
+
+
+     if(dt!= null &amp;&amp; dt.Rows.Count &gt; 0)
+			{
+			MessageBox.Show(query.ToString());
+		priv_exp =	BaseObject.CurrentRow.Row["UD_EInvoiceExplanation"].ToString();
+		priv_rate =dt.Rows[0][0].ToString();
+		priv_ = priv_exp +Environment.NewLine	+	priv_rate;
+    	 BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("UD_EInvoiceExplanation",priv_.ToString());
+    	// BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("UD_EInvoiceExplanation", BaseObject.CurrentRow.Row["UD_EInvoiceExplanation"].ToString()+dt.Rows[0][0].ToString());
+    	 
+    	 
+    	 /*
+         Toplam=Convert.ToDecimal(BaseObject.CurrentRow.Row["GrandTotal"])/Convert.ToDecimal(dt.Rows[0][0]);
+         BaseObject.CurrentRow.Row.SetField&lt;|String|&gt;("UD_EInvoiceExplanation",aa
+         +Environment.NewLine+"Kur: "+Convert.ToDecimal(dt.Rows[0][0]).ToString+"Fatura Tutarı : "+Toplam.ToString());
+         
+         		*/
+	    	
+	}
+	else {
+	return null;}
+   }
+	 }</ScriptText>
+</ScriptDefinition>

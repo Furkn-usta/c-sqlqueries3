@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="LogBaslikKontrol" Enabled="false" Priority="0" ScriptName="LogBaslikKontrol">
+  <Events>
+    <Event Enabled="true" ObjectName="TWorkOrderEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="TWorkOrderEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="Furkan Usta" EntryDate="2023-03-22T00:00:00">
+      <Change>Orderin başlik bilgilerinde yapilan tüm değişiklikleri açilan özel alana yazdirilmasini sağlar.</Change>
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 22.03.2023 13:49:05
+/*
+Orderin başlik bilgilerinde yapilan tüm değişiklikleri açilan özel alana yazdirilmasini sağlar.
+*/
+  function OnBeforePost(sender, ev)
+{
+if(BaseObject == null 
+|| BaseObject.CurrentRow == null 
+|| BaseObject.CurrentRow.Row == null
+|| BaseObject.IsNewRecord )
+		return null;
+
+         foreach(l_rows in BaseObject.Data.Tables["MA_WorkOrder"].Columns)
+         	{
+         		if(l_rows.ColumnName!="UD_YapilanDegisiklikler" )
+       				{
+       				if(l_rows.ColumnName!="UpdatedAt" )	
+       				{
+        				if(BaseObject.CurrentRow.Row[l_rows.ColumnName,DataRowVersion.Original]!=BaseObject.CurrentRow.Row[l_rows.ColumnName,DataRowVersion.Current])
+        					{
+        					if(l_rows.ColumnName == "IsClosed")
+        					{	
+        						if(Convert.ToInt32(BaseObject.CurrentRow.Row["IsClosed"])==1)
+        						ic_ = "Kapali";
+        						if(Convert.ToInt32(BaseObject.CurrentRow.Row["IsClosed"])==0)
+        						ic_ = "Açik";
+        						kayitEden=BaseObject.ActiveSession.User.UserCode.ToString()+" "+BaseObject.ActiveSession.User.UserName.ToString();
+ 								BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("UD_YapilanDegisiklikler",BaseObject.CurrentRow.Row["UD_YapilanDegisiklikler"].ToString()+Environment.NewLine+l_rows.ColumnName.ToString()+" - "+ic_.ToString()+" - "+BaseObject.CurrentRow.Row["UpdatedAt"].ToString()+" - "+kayitEden.ToString());
+						
+        					}
+        					else{
+								kayitEden=BaseObject.ActiveSession.User.UserCode.ToString()+" "+BaseObject.ActiveSession.User.UserName.ToString();
+ 								BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("UD_YapilanDegisiklikler",BaseObject.CurrentRow.Row["UD_YapilanDegisiklikler"].ToString()+Environment.NewLine+l_rows.ColumnName.ToString()+" - "+BaseObject.CurrentRow.Row["UpdatedAt"].ToString()+" - "+kayitEden.ToString());
+								}
+							}
+							}
+					}
+ 			 
+        	}
+		
+}
+ </ScriptText>
+</ScriptDefinition>

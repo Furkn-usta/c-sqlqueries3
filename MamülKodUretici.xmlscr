@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MamülKodUretici" Enabled="true" Priority="0" ScriptName="MamülKodUretici">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.10.2023 09:54:24 MamülKodUretici
+
+function OnAfterSucceededPost(sender,ev)
+{
+	if(BaseObject == null 
+    || BaseObject.CurrentRow == null
+    || BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("InventoryType") 
+	|| Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"]) != 6
+	)
+	return null;
+	
+		rec_id =BaseObject.CurrentRow.Row["RecId"].ToString();
+		
+		query = " select ";
+		query += " (select top 1 WOI.OperationCode from MA_WorkOrderItem WOI with (nolock)   ";
+        query += " where WOI.WorkOrderId =(select top 1  WO.RecId from MA_WorkOrder WO with (nolock)   ";
+        query += " where WO.InventoryId =(select top 1  RecId from IM_Item INV with (nolock) ";
+        query += " where INV.RecId = I.StyleCardId)) and WOI.ParentItemId is null and WOI.WorkOrderSubType=2)+ ";
+        query += " SUBSTRING((select top 1  INV.InventoryCode from IM_Item INV with (nolock) where INV.RecId = I.StyleCardId) ";
+        query += " ,CHARINDEX(\'-\',(select top 1  INV.InventoryCode from IM_Item INV with (nolock) where INV.RecId = I.StyleCardId)) ";
+        query += " ,len((select top 1  INV.InventoryCode from IM_Item INV with (nolock) where INV.RecId = I.StyleCardId))) [varyant_] ";
+        query += " from IM_Item I with (nolock) where I.RecId=\'"+rec_id.ToString()+"\'";
+        MessageBox.Show(query.ToString());
+     	dt=UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+        if(dt == null || dt.Rows.Count &lt;= 0)
+			    return null; 
+      
+        mamul_code_ = dt.Rows[0]["varyant_"].ToString();	
+	 	
+	 	upd_query_mamul(rec_id,mamul_code_);
+	 	BaseObject.Get(BaseObject.CurrentRow.Row["RecId"]);
+	 	return null;
+}
+	
+function upd_query_mamul(style_card_id,name_)
+{
+	query = "update IM_Item set InventoryCode =	\'"+name_.ToString()+"\' where InventoryType=6 and RecId = \'"+style_card_id.ToString()+"\'";
+//	MessageBox.Show(query.ToString());
+
+		dt=UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+        if(dt == null || dt.Rows.Count &lt;= 0)
+			    return null; 
+			/*	    */
+        
+	MessageBox.Show(query.ToString());
+}</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="zorunlualan" Enabled="true" Priority="0" ScriptName="zorunlu alan">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 10.08.2022 15:00:04
+function OnBeforePost(sender,ev)
+{
+	if(BaseObject != null &amp;&amp; BaseObject.CurrentRow != null &amp;&amp; BaseObject.CurrentRow.Row != null &amp;&amp; !BaseObject.CurrentRow.Row.IsNull("InventoryType") &amp;&amp; Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"]) == 100)
+    	{
+    	if(BaseObject.CurrentRow.Row.IsNull("MarkName")||BaseObject.CurrentRow.Row["MarkName"].ToString()=="")
+    	{
+    	sender.ShowMessage("Marka Eksik Tanımlanamaz..! scr:ZorunluAlan}");
+            ev.Cancel = true;
+            return null;
+    	}
+    	
+    	if(BaseObject.CurrentRow.Row.IsNull("SeasonCode") || BaseObject.CurrentRow.Row["SeasonCode"].ToString() == "")
+        {
+            sender.ShowMessage("Sezon Kodu Eksik Tanımlanamaz..! scr:ZorunluAlan}");
+            ev.Cancel = true;
+            return null;
+        }
+    	if(BaseObject.CurrentRow.Row.IsNull("GenderCode")|| BaseObject.CurrentRow.Row["GenderCode"].ToString() == "")
+    	{
+    	sender.ShowMessage("Cinsiyet Eksik Tanımlanamaz..! scr:ZorunluAlan}");
+            ev.Cancel = true;
+            return null;
+    	}
+    	if(BaseObject.CurrentRow.Row.IsNull("GroupCode")||BaseObject.CurrentRow.Row["GroupCode"].ToString()=="")
+    	{
+    	sender.ShowMessage("Grup Kodu Eksik Tanımlanamaz..! scr:ZorunluAlan}");
+            ev.Cancel = true;
+            return null;
+    	}    	
+    	
+    	if(BaseObject.CurrentRow.Row.IsNull("CurrentAccountCode")||BaseObject.CurrentRow.Row["CurrentAccountCode"].ToString()=="")
+    	{
+    	sender.ShowMessage("Müşteri Kodu Eksik Tanımlanamaz..! scr:ZorunluAlan}");
+            ev.Cancel = true;
+            return null;
+    	}
+   	}
+    
+}</ScriptText>
+</ScriptDefinition>

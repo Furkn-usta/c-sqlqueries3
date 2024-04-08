@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ModelKartı20Hane" Enabled="true" Priority="0" ScriptName="ModelKartı20Hane">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 5.01.2023 14:38:22
+function OnBeforePost(sender, ev)
+{ 
+if(BaseObject != null &amp;&amp; BaseObject.CurrentRow != null &amp;&amp; BaseObject.CurrentRow.Row != null &amp;&amp; Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"]) ==25 &amp;&amp; BaseObject.CurrentRow.Row.IsNull("AccessCode"))
+		{
+
+	if(BaseObject.CurrentRow.Row["InventoryCode"].ToString().Length &gt; 20){
+		BaseObject.ShowMessage("Model Kodu 20 Karakteri Geçemez!{scr:ModelKartı20Hane}");
+			ev.Cancel=true;
+			return null;
+					}
+}
+}</ScriptText>
+</ScriptDefinition>

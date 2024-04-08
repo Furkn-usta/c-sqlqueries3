@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MalzemeKartıKullanımdanKaldırma" Enabled="true" Priority="0" ScriptName="MalzemeKartıKullanımdanKaldırma">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="FurkanUsta" EntryDate="2023-04-06T00:00:00">
+      <Change>Sadece malzeme kartlarında çalışmaktadır. Scriptteki kullanıcılar haricindeki 
+kullanıcıların açmış olduğu malzeme kartları kullanımda tiki kaldırılmış olarak kayıt gerçekleştirilecektir.
+Şirket RecId'si scriptte yazan RecId şirketinde çalışmaktadır.</Change>
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 6.04.2023 09:01:44
+/*
+Sadece malzeme kartlarında çalışmaktadır. Scriptteki kullanıcılar haricindeki 
+kullanıcıların açmış olduğu malzeme kartları kullanımda tiki kaldırılmış olarak kayıt gerçekleştirilecektir.
+Şirket RecId'si scriptte yazan RecId şirketinde çalışmaktadır.
+*/
+function OnBeforePost(sender,eventArg)
+{
+    if(BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null
+    || BaseObject.CurrentRow.Row.IsNull("AccessCode")
+    ||( BaseObject.CurrentRow.Row["AccessCode"].ToString() != "TRIM"   &amp;&amp; BaseObject.CurrentRow.Row["AccessCode"].ToString() != "FABRIC"    &amp;&amp; BaseObject.CurrentRow.Row["AccessCode"].ToString() != "YARN") )
+   	return null;
+   	
+   	if(BaseObject.ActiveSession.User.RecId == "1" || BaseObject.ActiveSession.User.RecId == "12")
+   		return null;
+   		
+   		
+   	if(BaseObject.ActiveSession.Company.RecId == 3)	
+   		BaseObject.CurrentRow.Row.SetField&lt;|int|&gt;("InUse",0);
+}</ScriptText>
+</ScriptDefinition>

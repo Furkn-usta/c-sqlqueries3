@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetDovizKtrl" Enabled="true" Priority="0" ScriptName="MaliyetDovizKtrl">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 4.08.2022 17:30:39
+
+function OnBeforePost(sender, ev)
+{
+	rate1 = 0m;
+	rate2 = 0m;
+	inStr = "0";
+	if(!BaseObject.CurrentRow.Row.IsNull("ForexId"))
+		inStr += "," + BaseObject.CurrentRow.Row["ForexId"].ToString();
+	
+	if(!BaseObject.CurrentRow.Row.IsNull("Forex2Id"))
+		inStr += "," + BaseObject.CurrentRow.Row["Forex2Id"].ToString();
+	
+	
+	if(!BaseObject.CurrentRow.Row.IsNull("ForexRate"))
+		rate1 = Convert.ToDecimal(BaseObject.CurrentRow.Row["ForexRate"]);
+	
+	if(!BaseObject.CurrentRow.Row.IsNull("Forex2Rate"))
+		rate2 = Convert.ToDecimal(BaseObject.CurrentRow.Row["Forex2Rate"]);
+	
+	
+	foreach(ici in BaseObject.Data.Tables["MA_InitialCostItem"].Select("ForexId in (" + inStr + ")"))
+	{
+		if((ici["ForexId"] == BaseObject.CurrentRow.Row["ForexId"] &amp;&amp; Convert.ToDecimal(ici["ForexRate"]) &lt; rate1) || (ici["ForexId"] == BaseObject.CurrentRow.Row["Forex2Id"] &amp;&amp; Convert.ToDecimal(ici["ForexRate"]) &lt; rate2))
+		{
+			ev.Cancel = true;
+			BaseObject.ShowMessage("Bölen döviz kuru çarpan döviz kurundan büyük olamaz");
+			return null;
+		}
+	}
+}</ScriptText>
+</ScriptDefinition>

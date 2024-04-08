@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MüşteriSiparişiSatırSayacı" Enabled="true" Priority="0" ScriptName="MüşteriSiparişiSatırSayacı">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="OrderReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 3.11.2023 15:45:04 MüşteriSiparişiSatırSayacı
+
+
+function OnAfterSucceededPost(sender,ev)
+{
+	if(BaseObject == null 
+		|| BaseObject.CurrentRow == null 
+		|| BaseObject.CurrentRow.Row == null)
+			return null;
+	
+	if (BaseObject.CurrentRow.Row.IsNull("ReceiptType") || Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"]) != 2)
+			return null;
+		l_sb = new StringBuilder();		
+		l_sb.Clear();
+        l_sb.AppendLine(";WITH CTE AS (    SELECT         ORI.RecId,		        ROW_NUMBER() OVER (ORDER BY ORR.ReceiptNo ASC, ORI.ItemOrderNo ASC) AS Sayaç, ");
+        l_sb.AppendLine("ORI.UD_Sayac     FROM IM_OrderReceiptItem ORI     LEFT JOIN IM_OrderReceipt ORR ON ORR.RecId = ORI.OrderReceiptId ");
+        l_sb.AppendLine("WHERE ORR.ReceiptType = 2 ) UPDATE CTE SET UD_Sayac = Sayaç;");
+      
+		  UtilityFunctions.SqlCustomScalarQuery(BaseObject.Connection, BaseObject.Transaction,l_sb.ToString());
+       	BaseObject.Get(BaseObject.CurrentRow.Row["RecId"]);
+       	return null;
+}
+</ScriptText>
+</ScriptDefinition>

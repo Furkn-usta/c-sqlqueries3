@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ModelAdıKısmıBüyükHarfEngelleme" Enabled="false" Priority="0" ScriptName="ModelAdıKısmıBüyükHarfEngelleme">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>
+function OnBeforePost(sender, ev)
+{ 
+
+	if(BaseObject == null 	
+	|| BaseObject.CurrentRow == null 	
+	|| BaseObject.CurrentRow.Row == null)
+		return null;
+
+			
+//name_=BaseObject.CurrentRow.Row["UD_Name"].ToString().Trim();
+name_=BaseObject.CurrentRow.Row["InventoryName"].ToString().Trim();
+
+counter=0;
+sayac=0;
+
+seslii="İ";
+seslig="Ğ";
+sesliu="Ü";
+seslis="Ş";
+seslio="Ö";
+seslic="Ç";
+
+lock=false;
+	for (counter = 0; counter &lt; name_.Length; counter++)
+			{
+     
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslii)) sayac += 1;
+      
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslig)) sayac += 1;
+      
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(sesliu)) sayac += 1;
+       
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslis)) sayac += 1;    
+       
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslio)) sayac += 1;
+             
+      if (Convert.ToChar(name_.Substring(counter, 1)) == Convert.ToChar(seslic)) sayac += 1;
+        
+          for(i=65;i&lt;=90;i++) // büyük harf
+                {
+                dizi=[i];
+                if(Convert.ToChar(i) == Convert.ToChar(name_.Substring(counter, 1)))
+                sayac += 1;
+                }
+        
+        
+			}
+
+          
+
+				if(sayac&gt;0) 
+   				lock=true;
+					if(lock)
+					{
+					sender.ShowMessage("İngizlice Adı Kısmında Büyük Harf Kullanılamaz Dikkat..! {scr KüçükHarfEngelleme}");
+					ev.Cancel=true;
+					return null;  
+					}  
+   			  
+		}</ScriptText>
+</ScriptDefinition>

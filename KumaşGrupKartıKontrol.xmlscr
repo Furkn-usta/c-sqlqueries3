@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumaşGrupKartıKontrol" Enabled="true" Priority="0" ScriptName="KumaşGrupKartıKontrol">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 21.09.2023 10:39:36 KumaşGrupKartıKontrol
+
+function OnBeforePost(sender, ev)
+{
+    if (BaseObject == null 
+    || BaseObject.CurrentRow == null
+    || BaseObject.CurrentRow.Row == null
+    || BaseObject.CurrentRow.Row.IsNull("AccessCode")
+    || BaseObject.CurrentRow.Row.IsNull("GroupId"))
+        return null;
+
+     if (BaseObject.CurrentRow.Row["AccessCode"].ToString() == "FABRIC")
+     {
+        gr_id = Convert.ToInt32(BaseObject.CurrentRow.Row["GroupId"]);
+        if(gr_id != 1 &amp;&amp; gr_id != 2 &amp;&amp; gr_id != 3 &amp;&amp; gr_id != 4)
+            {
+            BaseObject.ShowMessage("Kumaş Kartlarında Grup Kodları Kumaş İçin Belirlenen Grup Kodları Seçilmelidir..", ConstantStr.Warning, Zeta.Common.InformationMessages.MessageBoxButton.OK, Zeta.Common.InformationMessages.MessageBoxImage.Exclamation);
+            ev.Cancel = true;
+            return null;
+            }
+     }
+}</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumaşKartiBirimDeğiştirmeKontrol" Enabled="true" Priority="0" ScriptName="KumaşKartiBirimDeğiştirmeKontrol">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnItemBeforePost" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnInitBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 26.12.2023 13:51:16 KumaşKartiBirimDeğiştirmeKontrol
+/*Kumaş kartinin içerisindeki birim, en ve gramaj bilgileri ön maliyetteki ve reçetedeki bilgiler ile uyuşmadiği taktirde kaydi engelleyecektir.*/
+function OnItemBeforePost(sender, ev)
+{
+	if(BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+	)
+		return null;
+		
+		if(BaseObject.ActiveSession.User.RecId == 1087)
+			return null;
+			
+		/*
+			old_unit_id = 0;
+			if (BaseObject.CurrentRow.Row["UnitId", DataRowVersion.Original] != DBNull.Value)
+				old_unit_id = BaseObject.CurrentRow.Row["UnitId", DataRowVersion.Original];
+					
+			new_unit_id = 0;
+			if (BaseObject.CurrentRow.Row["UnitId"] != DBNull.Value)
+				new_unit_id = Convert.ToInt16(BaseObject.CurrentRow.Row["UnitId"]);
+	*/
+		foreach(ri in BaseObject.Data.Tables["MA_RecipeItem"].Select("InventoryId is not null and ItemType = 1"))
+		   		{
+		   		    query = "select isnull(IUIS.RecId,0) [rec] ,isnull(I.FWidth,0) [k_eni], isnull(I.FWeight,0) [k_gramaj] from IM_ItemUnitItemSize IUIS with (nolock) ";
+		            query +=" left join IM_Item I with (nolock) on I.RecId=IUIS.InventoryId";
+		            query +=" where IUIS.InventoryId=\'"+ri["InventoryId"].ToString()+"\' and isnull(IUIS.IsMainUnit,0)=1";
+		            dt=UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+				//MessageBox.Show(query);
+				   if(dt == null || dt.Rows.Count &lt;=0)
+			          return null;
+			       malz_unit_id = dt.Rows[0]["rec"].ToString();			       
+			       recete_unit_id = ri["UnitId"].ToString();  
+			       
+			       malz_en = Convert.ToDecimal(dt.Rows[0]["k_eni"]);			       
+			       malz_gramaj = Convert.ToDecimal(dt.Rows[0]["k_gramaj"]);
+			       if(!ri.IsNull("DyeWeight"))			       
+			       gramaj_recete = Convert.ToDecimal(ri["DyeWeight"]);
+			       else
+			       gramaj_recete = 0;
+			       
+			       if(!ri.IsNull("DyeWidth"))	
+			       en_recete = Convert.ToDecimal(ri["DyeWidth"]);
+			       else
+			       en_recete = 0;
+			       
+			       if(malz_unit_id != recete_unit_id)
+			       {
+			       	sender.ShowMessage(ri["RecipeItemInventoryName"].ToString()+" Malzemesinin Birimi Kartin İçerisindeki Birim İle Uyuşmuyor.");
+			       	ev.Cancel = true;
+			       	return null;
+			       }
+			       
+			       if(Convert.ToDecimal(en_recete) != Convert.ToDecimal(malz_en))
+			       {
+			       	sender.ShowMessage(ri["RecipeItemInventoryName"].ToString()+" Malzemesinin Eni Kartin İçerisindeki En İle Uyuşmuyor.");
+			       	ev.Cancel = true;
+			       	return null;
+			       }
+			       
+			       if(Convert.ToDecimal(malz_gramaj) != Convert.ToDecimal(gramaj_recete))
+			       {
+			       	sender.ShowMessage(ri["RecipeItemInventoryName"].ToString()+" Malzemesinin Gramaji Kartin İçerisindeki Gramaj İle Uyuşmuyor.");
+			       	ev.Cancel = true;
+			       	return null;
+			       }
+		   		}
+}
+
+
+function OnInitBeforePost(sender, ev)
+{
+	if(BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+	)
+		return null;
+		
+		if(BaseObject.ActiveSession.User.RecId == 1087)
+			return null;
+			
+			foreach(ici in BaseObject.Data.Tables["MA_InitialCostItem"].Select("InventoryId is not null"))
+		   		{
+		            query = "select isnull(IUIS.RecId,0) [rec] ,isnull(I.FWidth,0) [k_eni], isnull(I.FWeight,0) [k_gramaj] from IM_ItemUnitItemSize IUIS with (nolock) ";
+		            query +=" left join IM_Item I with (nolock) on I.RecId=IUIS.InventoryId";
+		            query +=" where IUIS.InventoryId=\'"+ici["InventoryId"].ToString()+"\' and isnull(IUIS.IsMainUnit,0)=1";
+		            dt=UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",query);
+			
+				   if(dt == null || dt.Rows.Count &lt;=0)
+			          return null;
+			       malz_unit_id = dt.Rows[0]["rec"].ToString();
+			       
+			       maliyet_unit_id = ici["UnitId"].ToString();			      
+			       malz_en = Convert.ToDecimal(dt.Rows[0]["k_eni"]);			       
+			       malz_gramaj = Convert.ToDecimal(dt.Rows[0]["k_gramaj"]);
+			       
+			       if(!ici.IsNull("DyeWeight"))			       
+			       gramaj_maliyet = Convert.ToDecimal(ici["DyeWeight"]);
+			       else
+			       gramaj_maliyet = 0;
+			       
+			       if(!ici.IsNull("DyeWidth"))	
+			       en_maliyet = Convert.ToDecimal(ici["DyeWidth"]);
+			       else
+			       en_maliyet = 0;
+			       
+			       if(malz_unit_id != maliyet_unit_id)
+			       {
+			       	sender.ShowMessage(ici["InventoryCode"]+" Malzemesinin Birimi Kartin İçerisindeki Birim İle Uyuşmuyor.");
+			       	ev.Cancel = true;
+			       	return null;
+			       }
+			       
+			       if(Convert.ToDecimal(en_maliyet) != Convert.ToDecimal(malz_en))
+			       {
+			       	sender.ShowMessage(ici["InventoryCode"]+" Malzemesinin Eni Kartin İçerisindeki En İle Uyuşmuyor.");
+			       	ev.Cancel = true;
+			       	return null;
+			       }
+			       
+			       if(Convert.ToDecimal(malz_gramaj) != Convert.ToDecimal(gramaj_maliyet))
+			       {
+			       	sender.ShowMessage(ici["InventoryCode"]+" Malzemesinin Gramaji Kartin İçerisindeki Gramaj İle Uyuşmuyor.");
+			       	ev.Cancel = true;
+			       	return null;
+			       }
+            }	
+}</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MüsteriSiprarişAtama" Enabled="true" Priority="0" ScriptName="MüsteriSiprarişAtama">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="OrderReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 30.01.2023 10:29:56
+function OnColumnChanged(sender, ev)
+{
+	if(BaseObject == null || BaseObject.CurrentRow == null || BaseObject.CurrentRow.Row == null  || BaseObject.CurrentRow.Row.IsNull("ReceiptType"))
+		return null;
+			if( ev.Row.Table.TableName == "IM_OrderReceipt" &amp;&amp; ev.Column.ColumnName == "UD_MSipNo")
+	 {	
+			foreach (ri in BaseObject.Data.Tables["IM_OrderReceiptItem"].Select("RecId is not null"))
+			{
+				if(ri.IsNull("CustomerOrderNo") || ri["CustomerOrderNo"].ToString()==" " || ri["CustomerOrderNo"].ToString()=="")
+			ri.SetField&lt;|int|&gt;("CustomerOrderNo",Convert.ToInt64(BaseObject.CurrentRow.Row["UD_MSipNo"]));
+					
+			}
+		}
+	}</ScriptText>
+</ScriptDefinition>

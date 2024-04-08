@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetTedarikçiKopyalamaSıfırlama" Enabled="true" Priority="0" ScriptName="MaliyetTedarikçiKopyalamaSıfırlama">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.10.2023 17:53:06 MaliyetTedarikçiKopyalamaSıfırlama
+
+function OnBeforePost(sender,ev)
+{
+    if (BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null
+    || !BaseObject.IsCopyEntity)
+        return null;
+      /*  
+	if(BaseObject.ActiveSession.User.RecId == 1 || BaseObject.ActiveSession.User.RecId == 18)
+		return null;
+
+
+	if(BaseObject.ActiveSession.User.RecId != 1)
+		return null;
+	*/	
+		MessageBox.Show(BaseObject.IsCopyEntity.ToString());
+    foreach(ri in BaseObject.Data.Tables["MA_InitialCostItem"].Select("UD_Tedarikci is not null")) 
+                {
+			    	ri.SetField&lt;|string|&gt;("UD_Tedarikci","");
+                }
+}</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ModelMalzemeVaryantKontrol" Enabled="true" Priority="0" ScriptName="ModelMalzemeVaryantKontrol">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="FurkanUsta" EntryDate="2023-06-20T00:00:00">
+      <Change>Model kartında reçetede kullanılan malzemelerin Varyant tiplerine göre seçilen 1 ve 2  kontrol eder. Varyant Tipi 1 seçili ise reçetede Varyant1 zorunlu Varyant Tipi 1 ve 2 seçili ise reçetede Varyant1 ve Varyant 2 zorunlu olacaktır.
+</Change>
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 20.06.2023 14:22:14 
+/*
+Model kartında reçetede kullanılan malzemelerin Varyant tiplerine göre seçilen 1 ve 2  kontrol eder. Varyant Tipi 1 seçili ise reçetede Varyant1 zorunlu Varyant Tipi 1 ve 2 seçili ise reçetede Varyant1 ve Varyant 2 zorunlu olacaktır.
+*/
+function OnBeforePost(sender,eventArg)
+{
+    if(BaseObject == null
+    || BaseObject.CurrentRow == null
+    || BaseObject.CurrentRow.Row == null
+    || !BaseObject.CurrentRow.Row.IsNull("AccessCode")
+    || BaseObject.CurrentRow.Row.IsNull("InventoryType")
+    || Convert.ToInt32(BaseObject.CurrentRow.Row["InventoryType"]) != 100)
+        return null;
+
+
+    foreach (ri in BaseObject.Data.Tables["MA_RecipeItem"].Select("InventoryId is not null and OwnerInventoryId is not null"))
+    {
+     	inv_ = ri["InventoryId"].ToString();     
+     	own_ = ri["OwnerInventoryId"].ToString();  
+     	   
+     	str="select isnull(I.Variant1TypeId,0) [v1], isnull(I.Variant2TypeId,0) [v2] , isnull(I.InventoryName,\'\')  [name] from IM_Item I with (nolock) where I.RecId="+inv_;
+		dt= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",str);
+		if(dt == null || dt.Rows.Count&lt;=0)
+            return null;
+          
+          v1_ = dt.Rows[0]["v1"].ToString();
+          v2_ = dt.Rows[0]["v2"].ToString();
+          name_ = dt.Rows[0]["name"].ToString();
+         /*
+       	str2="select isnull(RI.Variant1,0) [riv1], isnull(RI.Variant2,0) [riv2] from MA_RecipeItem RI where RI.InventoryId="+inv_+" and RI.OwnerInventoryId="+own_;
+		dt2= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt2",str2);
+		if(dt2 == null || dt2.Rows.Count&lt;=0)
+            return null;
+            
+          riv1_ = dt2.Rows[0]["riv1"].ToString();
+          riv2_ = dt2.Rows[0]["riv2"].ToString();
+           */
+           riv1_ = ri["Variant1"].ToString();
+           riv2_ = ri["Variant2"].ToString();
+           /*
+          MessageBox.Show(str);
+          MessageBox.Show(riv1_);
+          MessageBox.Show(riv2_); 
+          
+           */
+        
+        if(v1_ == "1" &amp;&amp; v2_ == "0")
+        	if(string.IsNullOrWhiteSpace(riv1_) || riv1_ == "0")
+        		{
+        		 	sender.ShowMessage(name_+ " Malzemesinin Varyant Tiplerini Kontrol Ediniz. {src:ModelMalzemeVaryantKontrol}");
+		            eventArg.Cancel=true;
+		            return null;
+        		}
+        
+        if(v1_ == "1" &amp;&amp; v2_ == "3")
+        		if((string.IsNullOrWhiteSpace(riv1_) || riv1_ == "0") &amp;&amp; (string.IsNullOrWhiteSpace(riv2_) || riv2_ == "0") )
+                {
+        		 	sender.ShowMessage(name_+ " Malzemesinin Varyant Tiplerini Kontrol Ediniz..! {src:ModelMalzemeVaryantKontrol}");
+		            eventArg.Cancel=true;
+		            return null;
+        		}	
+    }
+}</ScriptText>
+</ScriptDefinition>

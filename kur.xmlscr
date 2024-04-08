@@ -1,0 +1,31 @@
+//Generated on 4.08.2022 17:30:39
+
+function OnBeforePost(sender, ev)
+{
+	rate1 = 0m;
+	rate2 = 0m;
+	inStr = "0";
+	if(!BaseObject.CurrentRow.Row.IsNull("ForexId"))
+		inStr += "," + BaseObject.CurrentRow.Row["ForexId"].ToString();
+	
+	if(!BaseObject.CurrentRow.Row.IsNull("Forex2Id"))
+		inStr += "," + BaseObject.CurrentRow.Row["Forex2Id"].ToString();
+	
+	
+	if(!BaseObject.CurrentRow.Row.IsNull("ForexRate"))
+		rate1 = Convert.ToDecimal(BaseObject.CurrentRow.Row["ForexRate"]);
+	
+	if(!BaseObject.CurrentRow.Row.IsNull("Forex2Rate"))
+		rate2 = Convert.ToDecimal(BaseObject.CurrentRow.Row["Forex2Rate"]);
+	
+	
+	foreach(ici in BaseObject.Data.Tables["MA_InitialCostItem"].Select("ForexId in (" + inStr + ")"))
+	{
+		if((ici["ForexId"] == BaseObject.CurrentRow.Row["ForexId"] && Convert.ToDecimal(ici["ForexRate"]) > rate1) || (ici["ForexId"] == BaseObject.CurrentRow.Row["Forex2Id"] && Convert.ToDecimal(ici["ForexRate"]) > rate2))
+		{
+			ev.Cancel = true;
+			BaseObject.ShowMessage("Satırdaki döviz kuru başlıktakinden büyük olamaz");
+			return null;
+		}
+	}
+}

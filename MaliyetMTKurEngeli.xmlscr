@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetMTKurEngeli" Enabled="true" Priority="0" ScriptName="MaliyetMTKurEngeli">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 19.02.2024 18:00:06 MaliyetMTKurEngeli
+function OnBeforePost(sender, ev)
+{
+	if( BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null)
+		return null;
+		
+    user_code_ = BaseObject.ActiveSession.User.RoleId;
+    /*
+    if(user_code_.ToString() !="15")
+        return null;
+	*/
+
+        old_rate1 = 0m;
+        if (BaseObject.CurrentRow.Row["ForexRate", DataRowVersion.Original] != DBNull.Value)
+			old_rate1 = Convert.ToDecimal(BaseObject.CurrentRow.Row["ForexRate", DataRowVersion.Original]);
+
+		new_rate1=0m;
+
+		if (BaseObject.CurrentRow.Row["ForexRate"] != DBNull.Value)
+			new_rate1 = Convert.ToDecimal(BaseObject.CurrentRow.Row["ForexRate"].ToString());
+
+        old_rate2 = 0m;
+        if (BaseObject.CurrentRow.Row["Forex2Rate", DataRowVersion.Original] != DBNull.Value)
+			old_rate2 = Convert.ToDecimal(BaseObject.CurrentRow.Row["Forex2Rate", DataRowVersion.Original]);
+
+		new_rate2=0m;
+
+		if (BaseObject.CurrentRow.Row["Forex2Rate"] != DBNull.Value)
+			new_rate2 = Convert.ToDecimal(BaseObject.CurrentRow.Row["Forex2Rate"].ToString());
+
+        old_given_rate1 = 0m;
+        if (BaseObject.CurrentRow.Row["GivenPriceForexRate", DataRowVersion.Original] != DBNull.Value)
+			old_given_rate1 = Convert.ToDecimal(BaseObject.CurrentRow.Row["GivenPriceForexRate", DataRowVersion.Original]);
+
+		new_given_rate1=0m;
+
+		if (BaseObject.CurrentRow.Row["GivenPriceForexRate"] != DBNull.Value)
+			new_given_rate1 = Convert.ToDecimal(BaseObject.CurrentRow.Row["GivenPriceForexRate"].ToString());
+
+        if(old_rate1 != new_rate1)
+        {
+            sender.ShowMessage("Kur Değiştirme Yetkiniz Bulunmamaktadır.");
+            ev.Cancel = true;
+            return null;
+        }
+        if(old_rate2 != new_rate2)
+        {
+            sender.ShowMessage("Kur Değiştirme Yetkiniz Bulunmamaktadır.");
+            ev.Cancel = true;
+            return null;
+        }
+        if(old_given_rate1 != new_given_rate1)
+        {
+            sender.ShowMessage("Kur Değiştirme Yetkiniz Bulunmamaktadır.");
+            ev.Cancel = true;
+            return null;
+        }
+
+   		 foreach(ici in BaseObject.Data.Tables["MA_InitialCostItem"].Select("ForexRate is not null")) 
+                {
+                    ici_old_rate= 0m;
+                        if (ici["ForexRate", DataRowVersion.Original] != DBNull.Value)
+                    ici_old_rate = Convert.ToDecimal(ici["ForexRate", DataRowVersion.Original]);
+                                                                    
+                    ici_new_rate = 0m;
+                         if (ici["ForexRate"] != DBNull.Value)
+                    ici_new_rate = Convert.ToDecimal(ici["ForexRate"]);
+
+                    if(ici_old_rate != ici_new_rate)                       
+                    {
+                        sender.ShowMessage("Kur Değiştirme Yetkiniz Bulunmamaktadır.");
+                        ev.Cancel = true;
+                        return null; 
+                    }
+                }
+}</ScriptText>
+</ScriptDefinition>

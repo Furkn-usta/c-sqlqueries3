@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="Maliyet Birim Fiyat" Enabled="true" Priority="0" ScriptName="MaliyetBirimFiyat">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 21.02.2022 16:38:02
+
+gLock = false;
+gValue = 0 ;
+function OnColumnChanged(sender, ev)
+{
+	if(!global:gLock &amp;&amp; ev.Row.Table.TableName == "MA_InitialCostItem" &amp;&amp; ev.Column.ColumnName == "Quantity" &amp;&amp; Convert.ToInt32(ev.Row["CostItemType"]) == 3)
+	{
+		global:gLock = true;
+		ev.Row.SetField&lt;|decimal|&gt;("Quantity", 0m);
+		global:gLock = false;
+	}
+	
+	if((ev.Row.Table.TableName == "MA_InitialCost" &amp;&amp; ev.Column.ColumnName == "OrderQuantity") || (ev.Row.Table.TableName == "MA_InitialCostItem" &amp;&amp; ev.Column.ColumnName == "UnitPrice"))
+	{
+	 	totalPrice = BaseObject.Data.Tables["MA_InitialCostItem"].Compute("SUM(UnitPrice)","CostItemType = 3");
+	 		MessageBox.Show(totalPrice.ToString());
+	 	totalPrice=totalPrice*100m;
+	 	
+		mGeneralExpensePercent = totalPrice/((Convert.ToDecimal(BaseObject.CurrentRow.Row["CostAmount1"]))+(Convert.ToDecimal(BaseObject.CurrentRow.Row["WastageAmount"])));
+		global:gValue = mGeneralExpensePercent ;
+	
+	 	BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("GeneralExpensePercent", Convert.ToDecimal(global:gValue));
+	}   
+	
+}
+/*
+//Generated on 21.02.2022 16:38:02
+
+gLock = false;
+gValue = 0 ;
+function OnColumnChanged(sender, ev)
+{
+	if(!global:gLock &amp;&amp; ev.Row.Table.TableName == "MA_InitialCostItem" &amp;&amp; ev.Column.ColumnName == "Quantity" &amp;&amp; Convert.ToInt32(ev.Row["CostItemType"]) == 3)
+	{
+		global:gLock = true;
+		ev.Row.SetField&lt;|decimal|&gt;("Quantity", 0m);
+		global:gLock = false;
+	}
+	i=1;
+	if((ev.Row.Table.TableName == "MA_InitialCost" &amp;&amp; ev.Column.ColumnName == "OrderQuantity") 
+	|| (ev.Row.Table.TableName == "MA_InitialCostItem" &amp;&amp; ev.Column.ColumnName == "UnitPrice"))
+	{
+	MessageBox.Show("den1");
+	 	totalPrice = BaseObject.Data.Tables["MA_InitialCostItem"].Compute("SUM(UnitPrice)","CostItemType = 3");
+	 	totalPrice=totalPrice*100m;
+		mGeneralExpensePercent = totalPrice/((Convert.ToDecimal(BaseObject.CurrentRow.Row["CostAmount1"]))+(Convert.ToDecimal(BaseObject.CurrentRow.Row["WastageAmount"])));
+		global:gValue = mGeneralExpensePercent ;
+	 	BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("GeneralExpensePercent", mGeneralExpensePercent);
+	}   
+
+	if(ev.Row.Table.TableName == "MA_InitialCostItem" &amp;&amp; Convert.ToInt32(ev.Row["CostItemType"]) != 3 &amp;&amp; ev.Column.ColumnName == "UnitPrice")
+	{
+	 	BaseObject.CurrentRow.Row.SetField&lt;|decimal|&gt;("GeneralExpensePercent", Convert.ToDecimal(global:gValue));
+	 	MessageBox.Show("den2");
+	 	}
+
+}*/
+	
+</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetModelKodUretme" Enabled="false" Priority="0" ScriptName="MaliyetModelKodUretme">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 10.11.2022 8:52:20
+
+
+function BeforePost(sender, ev)
+{  
+metin=BaseObject.CurrentRow.Row["Explanation"].ToString().Trim();
+counter=0;
+sayac=0;
+
+
+lock=false;
+
+	if(BaseObject != null 
+	&amp;&amp; BaseObject.CurrentRow != null 
+	&amp;&amp; BaseObject.CurrentRow.Row != null  )
+		{
+	for (counter = 0; counter &lt; metin.Length; counter++)
+			{
+     		sayac++;
+			}
+				if(sayac&gt;15) 
+   				lock=true;
+   			if(lock)
+   			{   			
+   			sender.ShowMessage("15 hane kullanılabilir..!");
+   			ev.Cancel=true;
+    		return null;  
+   			}  
+   			
+		}
+	
+}
+
+</ScriptText>
+</ScriptDefinition>

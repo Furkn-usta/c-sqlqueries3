@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ModelReçeteMiktarAktarımı" Enabled="true" Priority="0" ScriptName="ModelReçeteMiktarAktarımı">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 31.08.2023 09:30:26 ModelReçeteMiktarAktarımı
+function OnBeforePost(sender, ev)
+{
+	if(BaseObject == null 
+    || BaseObject.CurrentRow == null 
+    || BaseObject.CurrentRow.Row == null)
+		return null;
+	/**/
+    if(BaseObject.ActiveSession.User.RecId != 1)
+        return null;
+
+	  foreach(ia in BaseObject.Data.Tables["IM_ItemAllocation"].Select("InventoryReceiptItemId is not null"))
+      {
+                foreach(ri in BaseObject.Data.Tables["IM_ReceiptItem"].Select("RecId is not null and UD_OrderQuantity is not null"))
+            {
+                if(Convert.ToDecimal(ia["InventoryReceiptItemId"]) == Convert.ToDecimal(ri["RecId"]))
+                {
+                	vary_code = ia["ItemVariant1Code"].ToString();
+                	vary2_code = ia["ItemVariant2Code"].ToString();
+                	
+                    l_sb = new StringBuilder();
+                    l_sb.Clear();
+                    l_sb.AppendLine(" select top 1 case when (select isnull(INV.AccessCode,\'\')from IM_Item INV with (nolock) where INV.RecId=RI.InventoryId) = \'TRIM\' ");
+                    l_sb.AppendLine(" then cast((isnull(RI.Quantity,0)*isnull(RI.Wastage,0)/100)+isnull(RI.Quantity,0)as decimal (15,2))");
+                    l_sb.AppendLine(" when (select isnull(INV.AccessCode,\'\')from IM_Item INV with (nolock) where INV.RecId=RI.InventoryId) = \'YARN\'  ");
+                    l_sb.AppendLine(" then cast((isnull(RI.UD_Miktar,0)*isnull(RI.Wastage,0)/100)+isnull(RI.UD_Miktar,0)as decimal (15,2))");
+                    l_sb.AppendLine(" when (select isnull(INV.AccessCode,\'\')from IM_Item INV with (nolock) where INV.RecId=RI.InventoryId) = \'FABRIC\' ");
+                    l_sb.AppendLine(" then cast((isnull(RI.UD_Miktar,0)*isnull(RI.Wastage,0)/100)+isnull(RI.UD_Miktar,0)as decimal (15,2))");
+                    l_sb.AppendLine(" end as  [birim_sarf]  from MA_WorkOrderItem WOI with (nolock) ");
+                    l_sb.AppendLine(" left join MA_WorkOrder WO with (nolock) on WO.RecId=WOI.WorkOrderId ");
+                    l_sb.AppendLine(" left join IM_Item I with (nolock) on I.RecId=WO.InventoryId ");
+                    l_sb.AppendLine(" left join MA_RecipeItem RI with (nolock) on RI.OwnerInventoryId=I.RecId");
+                    l_sb.AppendLine(" where WOI.RecId=\'"+ia["WorkOrderItemId"].ToString()+"\' and ");
+                    l_sb.AppendLine(" RI.InventoryId=\'"+ia["InventoryId"].ToString()+"\'  "); 
+                    l_sb.AppendLine(" and isnull(RI.Variant1,\'\')=\'"+vary_code.ToString()+"\'");
+                    l_sb.AppendLine(" and isnull(RI.Variant2,\'\')=\'"+vary2_code.ToString()+"\'");
+                    
+                    MessageBox.Show(l_sb.ToString());
+                     dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt",l_sb.ToString());	
+					
+					if(dt == null || dt.Rows.Count&lt;=0)
+			            return null;
+			         
+                     birim_sarf_ = Convert.ToDecimal(dt.Rows[0]["birim_sarf"]);
+                     sip_mik_ = Convert.ToDecimal(ri["UD_OrderQuantity"]);
+                     tot_mik_ =  Convert.ToDecimal(birim_sarf_) * Convert.ToDecimal(sip_mik_);
+                     ri.SetField&lt;|decimal|&gt;("Quantity",Convert.ToDecimal(tot_mik_));
+                   	/**/
+                }
+            }
+    
+      }
+}
+</ScriptText>
+</ScriptDefinition>

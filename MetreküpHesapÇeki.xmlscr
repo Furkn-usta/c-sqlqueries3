@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="ÇekiListesiMetreküpHesaplama" Enabled="true" Priority="0" ScriptName="ÇekiListesiMetreküpHesaplama">
+  <Events>
+    <Event Enabled="true" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="PackagingListEN" />
+  </Events>
+  <Histories />
+  <ScriptText>function OnBeforePost(sender ,eventArg){
+	if(BaseObject != null
+	 &amp;&amp; BaseObject.CurrentRow != null 
+	 &amp;&amp; BaseObject.CurrentRow.Row != null 
+	 &amp;&amp; BaseObject.CurrentRow.Row.RowState!=DataRowState.Deleted 
+	 &amp;&amp; BaseObject.CurrentRow.Row.RowState!=DataRowState.Detached )
+	 {
+        en=0m;boy=0m;yukseklik=0m;
+        metreKup=0m;toplamMetreKup=0m;
+        
+        
+	    foreach(itemRow in BaseObject.Data.Tables["IM_PackagingListItem"].Rows){ 
+	    
+	    if(!itemRow.IsNull("UD_En") &amp;&amp; Convert.ToDecimal(itemRow["UD_En"])&gt;0)  
+	        en=Convert.ToDecimal(itemRow["UD_En"])/100;
+	        
+	    if(!itemRow.IsNull("UD_Boy") &amp;&amp; Convert.ToDecimal(itemRow["UD_Boy"])&gt;0)  
+	        boy=Convert.ToDecimal(itemRow["UD_Boy"])/100;
+	         
+	    if(!itemRow.IsNull("UD_Yukseklik") &amp;&amp; Convert.ToDecimal(itemRow["UD_Yukseklik"])&gt;0)   
+	        yukseklik=Convert.ToDecimal(itemRow["UD_Yukseklik"])/100;
+	            
+	    if(en&gt;0 &amp;&amp; boy&gt;0 &amp;&amp; yukseklik&gt;0) 
+	      metreKup=en*boy*yukseklik;
+
+	  
+	        if(itemRow.RowState!=DataRowState.Deleted &amp;&amp; itemRow.RowState!=DataRowState.Detached &amp;&amp; metreKup&gt;0m){
+	            s1=0;s2=0;koliSayisi=0;
+	            if(!itemRow.IsNull("StartPackaging") &amp;&amp; Convert.ToInt32(itemRow["StartPackaging"])&gt;0)
+	               s1=Convert.ToInt32(itemRow["StartPackaging"]);
+	               
+	            if(!itemRow.IsNull("EndPackaging") &amp;&amp; Convert.ToInt32(itemRow["EndPackaging"])&gt;0)
+	               s2=Convert.ToInt32(itemRow["EndPackaging"]);
+	               
+	            koliSayisi=s2-s1+1; 
+	            mkup=koliSayisi*metreKup;
+	            
+	            itemRow.SetField&lt;|Decimal|&gt;("UD_ToplamMetreKup",(Decimal)mkup);
+	            	MessageBox.Show(mkup.ToString());
+
+	        }  
+	        else if(itemRow.RowState!=DataRowState.Deleted &amp;&amp; itemRow.RowState!=DataRowState.Detached &amp;&amp; metreKup==0m)
+	           itemRow.SetField&lt;|Decimal|&gt;("UD_ToplamMetreKup",0m);
+        }
+        }	         
+    }
+
+
+
+</ScriptText>
+</ScriptDefinition>

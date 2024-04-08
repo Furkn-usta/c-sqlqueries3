@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetOrderBaglanincaTarihAtama" Enabled="true" Priority="0" ScriptName="MaliyetOrderBaglanincaTarihAtama">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 27.03.2024 12:06:08 MaliyetOrderBaglanincaTarihAtama
+function OnAfterSucceededPost(sender, ev)
+{
+	if( BaseObject == null 
+	|| BaseObject.CurrentRow == null 
+	|| BaseObject.CurrentRow.Row == null
+	|| BaseObject.CurrentRow.Row.IsNull("WorkOrderId")
+	|| BaseObject.CurrentRow.Row.IsNull("UD_OrderAddCheck")
+	|| BaseObject.CurrentRow.Row["UD_OrderAddCheck"].ToString()=="True"
+	)
+		return null;
+if(string.IsNullOrEmpty(BaseObject.CurrentRow.Row["WorkOrderId"]))
+  return null;
+
+    	workorder_Id = BaseObject.CurrentRow.Row["WorkOrderId"].ToString();
+      updt_date = BaseObject.CurrentRow.Row["UpdatedAt"].ToString();
+      rec_Id = BaseObject.CurrentRow.Row["RecId"].ToString();
+
+			//MessageBox.Show(BaseObject.CurrentRow.Row["UD_OrderAddCheck"].ToString());
+			update_sorgu ="update MA_InitialCost set UD_OrderAddCheck=1,UD_OrderAddDate=convert(date,\'"+updt_date+"\',104)";
+			update_sorgu +=" where RecId=\'"+rec_Id.ToString()+"\' ";
+      	 //MessageBox.Show(update_sorgu.ToString());
+            UtilityFunctions.SqlCustomScalarQuery(BaseObject.Connection,null,update_sorgu.ToString()); 
+}
+</ScriptText>
+</ScriptDefinition>

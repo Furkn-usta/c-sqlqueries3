@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MiktarKontrolEtme" Enabled="true" Priority="0" ScriptName="MiktarKontrolEtme">
+  <Events>
+    <Event Enabled="true" ObjectName="WorkOrderEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="WorkOrderEN" />
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnnBeforePost" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 17.11.2022 15:25:25
+
+function OnBeforePost(sender, ev)
+{
+	if (BaseObject == null || BaseObject.Data == null || BaseObject.Data.Tables == null)
+	    return null;	
+	
+		foreach(ri in BaseObject.Data.Tables["MA_WorkOrderItem"].Select("OrderItemId is not null"))
+	{
+	   query="select ORI.Quantity [orm] from IM_OrderReceiptItem ORI left join IM_OrderReceipt ORR on ORI.OrderReceiptId=ORR.RecId where ORR.ReceiptType=1 and ORI.RecId= \'"+ri["OrderItemId"]+ "\'";
+	   dt= UtilityFunctions.GetDataTableList(BaseObject.ActiveSession.DBInfo.DBProvider, BaseObject.ActiveSession.DBInfo.Connection, null, "dt",query);
+	   
+	   
+	   if(dt == null || dt.Rows.Count &lt; 0)
+	   return null;
+	   
+	  recete= Convert.ToDecimal(dt.Rows[0]["orm"]);
+	  uretim= Convert.ToDecimal(sender.CurrentRow.Row["Quantity"]);
+	   if(uretim&gt;recete)
+	   {
+	   sender.ShowMessage("Üretim Emri Miktarı: "+uretim+" Reçete Miktarı: "+recete+"Üretim Emri Miktarı Reçete Miktarından Büyük Olamaz..! scr{MiktarKontrolEtme}");
+	   ev.Cancel=true;
+	   return null;
+	   }
+	}
+}
+
+
+function OnnBeforePost(sender, ev)
+{
+	if (BaseObject == null || BaseObject.Data == null || BaseObject.Data.Tables == null)
+	    return null;	
+	
+		foreach(ri in BaseObject.Data.Tables["IM_ReceiptItem"].Select("WorkOrderReceiptItemId is not null and ReceiptType=10"))
+	{
+	   query2="select WOI.Quantity [wor] from MA_WorkOrderItem WOI where RecId= \'"+ri["WorkOrderReceiptItemId"]+"\'";
+	   dt2= UtilityFunctions.GetDataTableList(BaseObject.ActiveSession.DBInfo.DBProvider, BaseObject.ActiveSession.DBInfo.Connection, null, "dt2",query2);
+	   
+	   
+	   if(dt2 == null || dt2.Rows.Count &lt; 0)
+	   return null;
+	   
+	  uretim2= Convert.ToDecimal(dt2.Rows[0]["wor"]);
+	  fis= Convert.ToDecimal(ri["Quantity"]);
+	   if(fis&gt;uretim2)
+	   {
+	   sender.ShowMessage("Üretim Emri Miktarı: "+uretim2+" Reçete Miktarı: "+fis+" Reçete Miktarı Üretim Emri Miktarından Büyük Olamaz..! scr{MiktarKontrolEtme}");
+	   ev.Cancel=true;
+	   return null;
+	   }
+	}
+}
+
+
+
+</ScriptText>
+</ScriptDefinition>

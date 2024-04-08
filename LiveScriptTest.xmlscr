@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="LiveScriptTest" Enabled="true" Priority="0" ScriptName="LiveScriptTest">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="OrderReceiptVM" />
+    <Event Enabled="true" ObjectName="InventoryReceiptVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InventoryReceiptVM" />
+    <Event Enabled="true" ObjectName="TWorkOrderVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="TWorkOrderVM" />
+    <Event Enabled="true" ObjectName="TWorkOrderProductionVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="TWorkOrderProductionVM" />
+    <Event Enabled="true" ObjectName="InvoiceVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InvoiceVM" />
+    <Event Enabled="true" ObjectName="CustomerTransactionVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="CustomerTransactionVM" />
+    <Event Enabled="true" ObjectName="WorkOrderQCTestVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="WorkOrderQCTestVM" />
+    <Event Enabled="true" ObjectName="InitialCostVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InitialCostVM" />
+    <Event Enabled="true" ObjectName="TWorkOrderCuttingProductionVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="TWorkOrderCuttingProductionVM" />
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="RowChanged" FunctionName="OnRowChanged" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="ColumnChanging" FunctionName="OnColumnChanging" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="RowChaged" FunctionName="OnRowChaged" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="ColumnChanging" FunctionName="OnColumnChanging" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InvoiceEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="InvoiceEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="InvoiceEN" />
+    <Event Enabled="true" EventName="ColumnChanging" FunctionName="OnColumnChanging" ObjectName="InvoiceEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InvoiceEN" />
+    <Event Enabled="true" EventName="RowChanged" FunctionName="OnRowChanged" ObjectName="InvoiceEN" />
+    <Event Enabled="true" EventName="RowChanged" FunctionName="OnRowChanged" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanging" FunctionName="OnColumnChanging" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="TWorkOrderEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="TWorkOrderEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="TWorkOrderEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="TWorkOrderEN" />
+    <Event Enabled="true" EventName="RowChanged" FunctionName="OnRowChanged" ObjectName="TWorkOrderEN" />
+    <Event Enabled="true" EventName="ColumnChanging" FunctionName="OnColumnChanging" ObjectName="TWorkOrderEN" />
+    <Event Enabled="true" ObjectName="InventoryVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InventoryVM" />
+    <Event Enabled="true" ObjectName="InventoryStyleVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InventoryStyleVM" />
+    <Event Enabled="true" ObjectName="InventoryStyleCardVM" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="InventoryStyleCardVM" />
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="RowChanged" FunctionName="OnRowChanged" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="ColumnChanging" FunctionName="OnColumnChanging" ObjectName="InventoryEN" />
+    <Event Enabled="true" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="ColumnChanged" FunctionName="OnColumnChanged" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="RowChanged" FunctionName="OnRowChanged" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="ColumnChanging" FunctionName="OnColumnChanging" ObjectName="PackagingListEN" />
+    <Event Enabled="true" EventName="ViewLoaded" FunctionName="OnViewLoaded" ObjectName="PackagingListVM" />
+    <Event Enabled="true" EventName="BeforeCommandExecution" FunctionName="OnBeforeCommandExecution" ObjectName="InventoryReceiptVM" />
+    <Event Enabled="true" ObjectName="InventoryReceiptEN" />
+    <Event Enabled="true" EventName="AfterSucceededDelete" FunctionName="OnAfterSucceededDelete" ObjectName="InventoryReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 26.11.2021 12:11:0
+
+RuntimeHost.SetSettingItem("UnsubscribeAllEvents", false);
+
+function HasAvail(baseObj, evName)
+{
+	evReqs = ["UD_DevSpace","UD_chkBeforePost","UD_chkAfterPost","UD_chkAfterSucceededPost","UD_chkColumnChanging","UD_chkColumnChanged","UD_chkRowChanged"];
+	
+	if(baseObj == null || baseObj.CurrentRow == null || baseObj.CurrentRow.Row == null
+		|| baseObj.Data == null || baseObj.Data.Tables == null)
+		return false;
+	
+	foreach(evr in evReqs)
+		if(!baseObj.CurrentRow.Row.Table.Columns.Contains(evr))
+			return false;
+		
+	return ((evName == "BP" &amp;&amp; baseObj.CurrentRow.Row["UD_chkBeforePost"].ToString() == "True") || (evName == "AP" &amp;&amp; baseObj.CurrentRow.Row["UD_chkAfterPost"].ToString() == "True")
+	|| ((evName == "ASP" || evName == "ASD") &amp;&amp; baseObj.CurrentRow.Row["UD_chkAfterSucceededPost"].ToString() == "True") || (evName == "CC" &amp;&amp; baseObj.CurrentRow.Row["UD_chkColumnChanged"].ToString() == "True")
+	|| (evName == "RC" &amp;&amp; baseObj.CurrentRow.Row["UD_chkRowChanged"].ToString() == "True") || (evName == "CCC" &amp;&amp; baseObj.CurrentRow.Row["UD_chkColumnChanging"].ToString() == "True"));
+}
+
+function execCode(baseObj, ev, evName)
+{
+	if(baseObj.CurrentRow.Row.IsNull("UD_DevSpace") || string.IsNullOrWhiteSpace(baseObj.CurrentRow.Row["UD_DevSpace"].ToString()))
+		return null;
+	
+	cancelEv = false;
+	
+	ctx = new ScriptContext();
+	ctx.SetItem("BaseObject", baseObj);
+	ctx.SetItem("UtilityFunctions", UtilityFunctions);
+	ctx.SetItem("evName", evName);
+	ctx.SetItem("evArgs", ev);
+	ctx.SetItem("cancelEv", cancelEv);
+	
+	retResult = Script.RunCode( baseObj.CurrentRow.Row["UD_DevSpace"].ToString(), ctx );
+	
+	CallResult = [
+		Ret -&gt; retResult,
+		Cancel -&gt; ctx.GetItem("cancelEv", false)
+	];
+	
+	return CallResult;
+}
+
+function OnBeforePost(sender, ev)
+{
+	if(!HasAvail(BaseObject, "BP"))
+		return null;
+		
+	res = execCode(BaseObject, ev, "BeforePost");
+
+	if(res.Cancel)
+	{
+		ev.Cancel = res.Cancel;
+		return null;
+	}
+}
+
+function OnAfterPost(sender, ev)
+{
+	if(!HasAvail(BaseObject, "AP"))
+		return null;
+	
+	execCode(BaseObject, ev, "AfterPost");
+}
+
+function OnAfterSucceededPost(sender, ev)
+{
+	if(!HasAvail(BaseObject, "ASP"))
+		return null;
+	
+	execCode(BaseObject, ev, "AfterSucceededPost");
+}
+
+function OnAfterSucceededDelete(sender, ev)
+{
+	if(!HasAvail(BaseObject, "ASD"))
+		return null;
+	
+	execCode(BaseObject, ev, "AfterSucceededDelete");
+}
+
+function OnColumnChanged(sender, ev)
+{
+	if(!HasAvail(BaseObject, "CC"))
+		return null;
+	
+	execCode(BaseObject, ev, "ColumnChanged");
+}
+
+function OnColumnChanging(sender, ev)
+{
+	if(!HasAvail(BaseObject, "CCC"))
+		return null;
+	
+	execCode(BaseObject, ev, "ColumnChanging");
+}
+
+function OnRowChanged(sender, ev)
+{
+	if(!HasAvail(BaseObject, "RC"))
+		return null;
+
+	execCode(BaseObject, ev, "RowChanged");
+}
+
+function OnBeforeCommandExecution(sender, ev)
+{
+	if(BaseObject == null || BaseObject.ActiveEntity == null || BaseObject.ActiveEntity.Data == null
+		|| BaseObject.ActiveEntity.Data.Tables == null || !BaseObject.ActiveEntity.CurrentRow.Row.Table.Columns.Contains("UD_DevSpace")
+		|| BaseObject.ActiveEntity.CurrentRow.Row.IsNull("UD_DevSpace") || string.IsNullOrWhiteSpace(BaseObject.ActiveEntity.CurrentRow.Row["UD_DevSpace"].ToString())
+		|| !BaseObject.ActiveEntity.CurrentRow.Row["UD_DevSpace"].ToString().StartsWith("//Run"))
+		return null;
+	
+	txtScriptCode = BaseObject.FindControl("txtScriptCode");
+	
+	if(txtScriptCode == null)
+		return null;
+
+	cancelEv = false;
+	
+	ctx = new ScriptContext();
+	ctx.SetItem("BaseObject", BaseObject.ActiveEntity );
+	ctx.SetItem("GPBaseObject", BaseObject );
+	ctx.SetItem("ev", ev);
+	ctx.SetItem("cancelEv", cancelEv);
+	
+	Script.RunCode( txtScriptCode.Text.ToString(), ctx );
+	
+	if(ctx.GetItem("cancelEv", false))
+	{
+		ev.Cancel = true;
+		return null;
+	}
+}
+
+function BtnEventHandler(sender, ev)
+{
+	if(BaseObject == null || BaseObject.ActiveEntity == null || BaseObject.ActiveEntity.Data == null
+		|| BaseObject.ActiveEntity.Data.Tables == null || !BaseObject.ActiveEntity.CurrentRow.Row.Table.Columns.Contains("UD_DevSpace")
+		|| BaseObject.ActiveEntity.CurrentRow.Row.IsNull("UD_DevSpace") || string.IsNullOrWhiteSpace(BaseObject.ActiveEntity.CurrentRow.Row["UD_DevSpace"].ToString()))
+		return null;
+	
+	txtScriptCode = BaseObject.FindControl("txtScriptCode");
+	
+	if(txtScriptCode == null)
+		return null;
+
+	ctx = new ScriptContext();
+	ctx.SetItem("BaseObject", BaseObject.ActiveEntity );
+	ctx.SetItem("GPBaseObject", BaseObject );
+	
+	Script.RunCode( txtScriptCode.Text.ToString(), ctx );
+}
+
+function OnViewLoaded(sender, ev)
+{
+	if(BaseObject == null) return null;
+	
+	btnRunCode = BaseObject.FindControl("btnRunCode");
+	
+	if(btnRunCode == null)
+		return null;
+
+	btnRunCode.Click += BtnEventHandler;
+}</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MalzemeAçiklamaTaşima" Enabled="true" Priority="2" ScriptName="MalzemeAçiklamaTaşima">
+  <Events>
+    <Event Enabled="true" ObjectName="OrderReceiptEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="OrderReceiptEN" />
+    <Event Enabled="false" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="OrderReceiptEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 22.09.2023 11:39:36 MalzemeAçiklamaTaşima
+/*
+Modelin reçetesinde aksesuar açiklamasina yazilan alani satin alma siparişine taşir. Sadece aksesuarda çalişir.
+*/
+upd_query ="";
+function OnAfterPost(sender,ev)
+{
+ 
+    if(BaseObject == null 	
+	|| BaseObject.CurrentRow == null 	
+	|| BaseObject.CurrentRow.Row == null
+    || BaseObject.CurrentRow.Row.IsNull("ReceiptType")
+    || BaseObject.CurrentRow.Row.IsNull("AccessCode")
+    || BaseObject.CurrentRow.Row["AccessCode"].ToString() != "TRIM"
+    || Convert.ToInt32(BaseObject.CurrentRow.Row["ReceiptType"]) != 1)
+        return null;
+
+        foreach(ia in BaseObject.Data.Tables["IM_ItemAllocation"].Select("OrderReceiptItemId is not null and WorkOrderItemId is not null and InventoryId is not null"))
+        {
+            ia_rec_ = Convert.ToInt32(ia["OrderReceiptItemId"]);
+            woi_rec_ = Convert.ToInt32(ia["WorkOrderItemId"]);
+            i_rec_ = Convert.ToInt32(ia["InventoryId"]);
+           	v1_ = ia["ItemVariant1Code"].ToString();
+           	v2_ = ia["ItemVariant2Name"].ToString();
+           	
+             foreach(ori in BaseObject.Data.Tables["IM_OrderReceiptItem"].Select("RecId is not null"))
+                {
+                   ori_rec_ = Convert.ToInt32(ori["RecId"]);
+                        if (ori_rec_ == ia_rec_)                       
+                         {
+                         
+                             sb = new StringBuilder();
+                             sb.Clear();
+                             /*
+                             sb.AppendLine("select isnull(RI.Explanation,\'\') [expl_] from IM_ItemAllocation IA with (nolock)");                   
+                             sb.AppendLine("left join MA_WorkOrderItem WOI with (nolock) on WOI.RecId=IA.WorkOrderItemId");
+                             sb.AppendLine("left join MA_WorkOrder WO with (nolock) on WO.RecId=WOI.WorkOrderId");
+                             sb.AppendLine("left join MA_RecipeItem RI with (nolock) on RI.InventoryId=IA.InventoryId  and RI.OwnerInventoryId=WO.InventoryId");
+                             //sb.AppendLine("where IA.OrderReceiptType=1  and isnull(RI.Variant1,\'\')=\'"+v2_.ToString()+"\' and IA.InventoryId= \'"+i_rec_.ToString()+"\' and (select isnull(I.AccessCode,\'\') from IM_Item I with (nolock) where I.RecId=\'"+i_rec_.ToString()+"\')=\'TRIM\' and WOI.RecId=\'"+woi_rec_.ToString()+"\'");
+                             sb.AppendLine("where IA.OrderReceiptType=1 and IA.InventoryId= \'"+i_rec_.ToString()+"\' and (select isnull(I.AccessCode,\'\') from IM_Item I with (nolock) where I.RecId=\'"+i_rec_.ToString()+"\')=\'TRIM\' and WOI.RecId=\'"+woi_rec_.ToString()+"\'");
+                             sb.AppendLine("group by RI.Explanation");
+                             
+                           
+                             sb.AppendLine("select isnull(RRI.Explanation,\'\')															");
+							sb.AppendLine("from MA_Requirement R with (nolock)															");
+							sb.AppendLine("left join IM_Item I with (nolock) on (I.RecId = R.InventoryId)								");
+							sb.AppendLine("left join MA_RecipeItem RRI with (nolock) 													");
+							sb.AppendLine("left join IM_Item II on II.RecId = RRI.OwnerInventoryId										");
+							sb.AppendLine("on (RRI.RecId = (select top 1 RIP2.RecId from MA_RecipeItem RIP2 with (nolock)				");
+							sb.AppendLine("where RIP2.InventoryId = \'"+i_rec_.ToString()+"\' and RIP2.InventoryId = R.InventoryId 		");
+							sb.AppendLine("and isnull(RIP2.ItemNo,0) = isnull(R.RecipeItemNo,0) and RIP2.ItemType = R.RequirementType))	");
+							sb.AppendLine("where RRI.InventoryId = \'"+i_rec_.ToString()+"\' and R.RequirementType = 4 and R.WorkOrderItemId=\'"+woi_rec_.ToString()+"\'					");
+							sb.AppendLine("and II.RecId = (select isnull(WO.InventoryId,\'\') from MA_WorkOrder WO with (nolock) left join MA_WorkOrderItem WOI with (nolock) on WOI.WorkOrderId=WO.RecId and WOI.RecId=\'"+woi_rec_.ToString()+"\')");
+							sb.AppendLine("and R.Variant2 =\'"+v2_.ToString()+"\'	");			
+                             */
+                                sb.AppendLine("select 		");
+								sb.AppendLine("isnull(RRI.Explanation,\'\')	[expl_]			");
+								sb.AppendLine("from MA_Requirement R with (nolock)				");
+								sb.AppendLine("left join IM_Item I with (nolock) on (I.RecId = R.InventoryId)		");
+								sb.AppendLine("left join MA_WorkOrderItem WOI with (nolock) on WOI.RecId=R.WorkOrderItemId		");			
+								sb.AppendLine("left join MA_WorkOrder WO with (nolock) on WO.RecId=WOI.WorkOrderId 				");
+								sb.AppendLine("left join MA_RecipeItem RRI with (nolock) on RRI.OwnerInventoryId	=WO.InventoryId	");
+								sb.AppendLine("where RRI.InventoryId = \'"+i_rec_.ToString()+"\'	");
+								sb.AppendLine("and R.RequirementType = 4 and RRI.ItemNo=R.RecipeItemNo		");
+								sb.AppendLine("and WOI.RecId=\'"+woi_rec_.ToString()+"\'	");
+								sb.AppendLine("and R.Variant2  =\'"+v2_.ToString()+"\'");
+								sb.AppendLine("and R.Variant1 =\'"+v1_.ToString()+"\'	");
+
+                           //  MessageBox.Show(sb.ToString());
+                             /* */
+
+                             dt_sb= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "dt_sb",sb.ToString());
+
+                            if(dt_sb == null || dt_sb.Rows.Count &lt;=0)
+                                return null;
+                                exp_ = dt_sb.Rows[0]["expl_"].ToString();
+                             ori.SetField&lt;|string|&gt;("UD_ReceteAciklama",exp_);
+                            global:upd_query= "update IM_OrderReceiptItem set UD_ReceteAciklama =\'"+exp_.ToString()+"\' where RecId = \'"+ori_rec_.ToString()+"\'";
+                             up_dt= UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction, "up_dt",global:upd_query.ToString());
+						 if(dt_sb == null || dt_sb.Rows.Count &lt;0)
+                                return null;
+                               
+                        }
+                }   
+        }
+}
+</ScriptText>
+</ScriptDefinition>

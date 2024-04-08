@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="MaliyetDegisiklikKontrol" Enabled="true" Priority="0" ScriptName="MaliyetDegisiklikKontrol">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>//Generated on 4.07.2023 10:39:03
+ /*
+ Maliyet ekranı üzerinde yapılan değişiklikleri mail olarak atıp maliyeti onaysız duruma çeker.
+ */
+  function OnBeforePost(sender, ev)
+{
+if(BaseObject == null 
+|| BaseObject.CurrentRow == null 
+|| BaseObject.CurrentRow.Row == null)
+		return null;
+	
+	//const_mail_adress="ali.senyuz@demkagroup.com";
+    const_mail_adress="furkan.usta@enkayyazilim.com";
+    maliyet_mail_konu ="Maliyet Değişikliği";
+    cost_no_ = BaseObject.CurrentRow.Row["InitialCostCode"].ToString();
+    changed_info = "";
+    changed_row_info = "";
+   /**/
+         foreach(l_rows in BaseObject.Data.Tables["MA_InitialCost"].Columns)
+         {
+        
+            if( l_rows.ColumnName!="UpdatedAt" 
+            &amp;&amp; l_rows.ColumnName!="CurrentAccountId"
+            &amp;&amp; l_rows.ColumnName!="CurrentAccountCode"
+            &amp;&amp; l_rows.ColumnName!="CurrentAccountName"
+            &amp;&amp; l_rows.ColumnName!="CostDate"
+            &amp;&amp; l_rows.ColumnName!="Explanation"
+            &amp;&amp; l_rows.ColumnName!="IsApproved"
+            &amp;&amp; l_rows.ColumnName!="ApprovedAt"
+            &amp;&amp; l_rows.ColumnName!="ApprovedBy"
+            
+         	 /* 
+            &amp;&amp; l_rows.ColumnName!="no1"
+            &amp;&amp; l_rows.ColumnName!="not2"
+            */
+            
+            
+            )
+            {
+              if(BaseObject.CurrentRow.Row[l_rows.ColumnName,DataRowVersion.Original]!=BaseObject.CurrentRow.Row[l_rows.ColumnName,DataRowVersion.Current])
+                {
+                
+                    //  BaseObject.CurrentRow.Row.SetField&lt;|string|&gt;("UD_AnaKumas",BaseObject.CurrentRow.Row["UD_AnaKumas"].ToString()+Environment.NewLine+l_rows.ColumnName.ToString());
+                      //changed_info = changed_info + Environment.NewLine+l_rows.ColumnName.ToString();
+                      changed_info = changed_info + l_rows.ColumnName.ToString();
+                      changed_info += " ";
+                }
+              
+            }
+ 			
+         }
+              foreach(l_rows_item in BaseObject.Data.Tables["MA_InitialCostItem"].Rows)
+           	 {
+                  foreach(ll_rows in BaseObject.Data.Tables["MA_InitialCostItem"].Columns)
+                    {
+                        if( ll_rows.ColumnName!="UpdatedAt" 
+                          )
+                          {
+                          if(l_rows_item[ll_rows.ColumnName,DataRowVersion.Original]!=l_rows_item[ll_rows.ColumnName,DataRowVersion.Current])
+                              {
+                                    changed_row_info = changed_row_info + ll_rows.ColumnName.ToString();
+                                    changed_row_info += " ";
+                              }
+                            
+                          }
+                    }
+
+            }
+            
+            changed_info += changed_row_info;
+
+            if(changed_info != null &amp;&amp; changed_info.ToString().Trim() != "")
+              {
+                  OnSendMail(const_mail_adress.ToString(),maliyet_mail_konu.ToString(),cost_no_.ToString()+" Numaralı Maliyette Yapılan Değişiklikler:" + changed_info);
+                  BaseObject.CurrentRow.Row.SetField&lt;|int|&gt;("IsApproved",0);
+              }
+              /*
+              if(changed_row_info != null &amp;&amp; changed_row_info.ToString().Trim() != "")
+              {
+                  OnSendMail(const_mail_adress.ToString(),maliyet_mail_konu.ToString(),cost_no_.ToString()+" Numaralı Maliyette Yapılan Değişiklikler:" + changed_row_info);
+                //  BaseObject.CurrentRow.Row.SetField&lt;|int|&gt;("IsApproved",0);
+              }*/
+}
+ 
+ function OnSendMail(mail_adress, value1,value2)
+{
+/**/
+    tms = BaseObject.Container.Resolve&lt;|TaskMessageService|&gt;("TaskMessageService");
+	mail_adress_ = "";
+	if(!DBNull.Value.Equals(mail_adress_))
+		mail_adress_ = mail_adress.ToString();
+    tms.SendEmail(mail_adress_ , value1, value2);
+
+//sender.ShowMessage(mail_adress+" - "+value1+" - "+value2);
+}
+
+/*
+function OnTranslate(valuee)
+{
+const_value = "";
+
+if (valuee.ToString().Trim() == "SpecialCode")
+const_value = "Özel Kod";
+
+
+}
+
+*/</ScriptText>
+</ScriptDefinition>

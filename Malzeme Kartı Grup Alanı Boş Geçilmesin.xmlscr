@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="Malzeme Karti Grup Alani Boş Geçilmesin " Enabled="true" Priority="0" ScriptName="Malzeme Karti Grup Alani Boş Geçilmesin">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="10:00" EntryDate="2015-05-18T00:00:00">
+      <Change />
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 18.05.2016 09:53:37
+function OnBeforePost(sender,e)
+{
+	if(BaseObject!=null &amp;&amp; BaseObject.CurrentRow!=null &amp;&amp; BaseObject.CurrentRow.Row!=null)
+	{
+		if(BaseObject.CurrentRow.Row.IsNull("GroupId"))
+		{
+			BaseObject.ShowMessage("Grup seçmeniz gerekmektedir.");
+			e.Cancel=true;
+		}
+	}
+}</ScriptText>
+</ScriptDefinition>

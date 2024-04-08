@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="NotUyarıVerme" Enabled="true" Priority="0" ScriptName="NotUyarıVerme">
+  <Events>
+    <Event Enabled="true" ObjectName="InitialCostEN" />
+    <Event Enabled="true" EventName="BeforePost" FunctionName="OnBeforePost" ObjectName="InitialCostEN" />
+  </Events>
+  <Histories />
+  <ScriptText>function OnBeforePost(sender, ev)  
+{  
+   if(BaseObject != null || BaseObject.CurrentRow != null || BaseObject.CurrentRow.Row!=null  || BaseObject.CurrentRow.Row.IsNull("MA_InitialCost") || BaseObject.CurrentRow.Row["MA_InitialCost"].ToString()=="")
+   {
+ if(BaseObject.CurrentRow.Row.IsNull("UD_Notlar") 
+ || BaseObject.CurrentRow.Row["UD_Notlar"].ToString() == ""|| BaseObject.CurrentRow.Row["UD_Notlar"].ToString() == " ")
+        	{sender.ShowMessage("Boş yada null değer"); }
+ else 
+  BaseObject.ShowMessage(BaseObject.CurrentRow["UD_Notlar"].ToString());
+  }
+
+} 
+       	</ScriptText>
+</ScriptDefinition>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="KumasVeAksesuarHammaddeAcma" Enabled="true" Priority="0" ScriptName="KumasVeAksesuarHammaddeAcma">
+  <Events>
+    <Event Enabled="true" ObjectName="InventoryEN" />
+    <Event Enabled="true" EventName="AfterSucceededPost" FunctionName="OnAfterSucceededPost" ObjectName="InventoryEN" />
+  </Events>
+  <Histories>
+    <History EditedBy="FurkanUsta" EntryDate="2023-03-17T00:00:00">
+      <Change>Kumaş ve Akseuarların Malzeme Türünün hammadde olarak seçilmesini sağlar</Change>
+    </History>
+  </Histories>
+  <ScriptText>//Generated on 17.03.2023 10:23:56
+/*
+Kumaş ve Akseuarların Malzeme Türünün hammadde olarak seçilmesini sağlar
+*/
+
+function OnAfterSucceededPost(sender,ev)
+{
+if(BaseObject==null 
+||BaseObject.CurrentRow==null
+||BaseObject.CurrentRow.Row==null
+||BaseObject.CurrentRow.Row.IsNull("AccessCode")
+||BaseObject.CurrentRow.Row.IsNull("RecId")
+||(BaseObject.CurrentRow.Row["AccessCode"].ToString()!="TRIM" 
+&amp;&amp; BaseObject.CurrentRow.Row["AccessCode"].ToString()!="FABRIC"))
+return null;
+
+			str="select RecId rec from IM_Item where RecId="+BaseObject.CurrentRow.Row["RecId"].ToString();
+    		dt = UtilityFunctions.GetDataTableList(BaseObject.ActiveSession.DBInfo.DBProvider, BaseObject.ActiveSession.DBInfo.Connection, null, "dt", str);
+	  		if(dt!=null &amp;&amp; dt.Rows.Count&gt;0 )
+	  		{
+	  		 		Rec=dt.Rows[0]["rec"].ToString();
+	  		 				UtilityFunctions.SqlCustomScalarQuery(BaseObject.Connection,null,"update IM_Item set InventoryType=4 where RecId="+Rec);
+							BaseObject.Get(BaseObject.CurrentRow.Row["RecId"]);
+
+	  		 		}
+	  		 		
+}</ScriptText>
+</ScriptDefinition>

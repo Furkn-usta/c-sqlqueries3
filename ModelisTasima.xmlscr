@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<ScriptDefinition xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Description="Modelist Tasima" Enabled="true" Priority="0" ScriptName="ModelisTasima">
+  <Events>
+    <Event Enabled="true" ObjectName="CustomerTransactionEN" />
+    <Event Enabled="true" EventName="AfterPost" FunctionName="OnAfterPost" ObjectName="CustomerTransactionEN" />
+  </Events>
+  <Histories />
+  <ScriptText>function OnAfterPost(sender,eventArg){
+	//aşağidaki islemid= 2 yerine hangi işlem bitişi sonrasi script aktif olsun istiyorsanir onun recid yazin. İşlem kartlari CR_TransactionType 
+	
+	islemId = 2;
+	////aşağidaki sonrakiIslem değeri modelist atanacak görev id yazilacak  Üretim için Kalip hazir  gibi
+	sonrakiIslem =21;
+	
+	
+	if(BaseObject!=null 
+	&amp;&amp; BaseObject.CurrentRow!=null 
+	&amp;&amp;BaseObject.CurrentRow.Row["TranStatus"].ToString() =="4"
+	&amp;&amp;BaseObject.CurrentRow.Row["TranTypeId"].ToString() ==islemId.ToString() )
+	{
+		invId = BaseObject.CurrentRow.Row["InventoryId"].ToString();
+		query = "select * from IM_Item where RecId = "+invId;
+		dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction,  "dt", query);
+		if(dt != null &amp;&amp; dt.Rows.Count&gt;0 )
+		{
+			if( string.IsNullOrEmpty(dt.Rows[0]["EmployeeId"].ToString()))
+			{
+				BaseObject.ShowMessage("Model kartinda modelist bilgisi eksik. İşlem iptal edildi:Scr:ModelistTasima");
+				eventArg.Cancel=true;
+			}
+			else
+			{
+				modelist = dt.Rows[0]["EmployeeId"].ToString();
+				
+				query = "select RecId from MA_Resource where EmployeeId = "+modelist;
+				dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction,  "dt", query);
+				if(dt != null &amp;&amp; dt.Rows.Count&gt;0 &amp;&amp; !String.IsNullOrEmpty(BaseObject.CurrentRow.Row["WorkOrderId"].ToString()) )				
+				{
+					modelist =  dt.Rows[0][0].ToString();
+					
+					wo = BaseObject.CurrentRow.Row["WorkOrderId"].ToString();
+					query = String.Format("select top 1 RecId from CR_CustomerTransaction where WorkOrderId = {0} and TranTypeId = {1}",wo,sonrakiIslem);
+					
+					dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction,  "dt", query);
+					if(dt != null &amp;&amp; dt.Rows.Count&gt;0 &amp;&amp; !String.IsNullOrEmpty( dt.Rows[0][0].ToString()) )				
+					{					
+						transid = dt.Rows[0][0].ToString();
+						query = "select  top 1 * from CR_CustomerTransactionResource where TransactionId = "+dt.Rows[0][0].ToString();
+						dt = UtilityFunctions.GetDataTableList(BaseObject.Provider, BaseObject.Connection, BaseObject.Transaction,  "dt", query);
+						if(dt == null || dt.Rows.Count== 0)
+						{
+							query = "insert into CR_CustomerTransactionResource (TransactionId,ResourceType,ResourceId,IsMaster) Values({0},1,{1},1)";
+							query = String.Format(query,transid,modelist);
+							UtilityFunctions.SqlCustomScalarQuery(BaseObject.Connection,BaseObject.Transaction,query);				            				
+						
+						}
+						
+						query = String.Format("update CR_CustomerTransactionResource set ResourceId = {0} where TransactionId = {1}",modelist,transid);
+						UtilityFunctions.SqlCustomScalarQuery(BaseObject.Connection,BaseObject.Transaction,query);				            				
+					
+							
+					}
+				}
+				
+			}
+			
+			
+		
+		}
+		
+	
+	}
+		
+
+}</ScriptText>
+</ScriptDefinition>
